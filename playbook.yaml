@@ -3,66 +3,80 @@
   hosts: localhost
   become: true
   become_method: sudo
-  vars_prompt:
-    - name: arangodb_root_password
-      prompt: 'Enter a password for the ArangoDB root user'
+  # vars_prompt:
+  #   - name: arangodb_root_password
+  #     prompt: 'Enter a password for the ArangoDB root user'
   tasks:
-    - name: Install Nginx
-      dnf:
-        name: nginx
-        state: present
-      tags:
-        - nginx
-
-    - name: Add ArangoDB repository
-      command: curl -OL https://download.arangodb.com/arangodb310/RPM/arangodb.repo
-      args:
-        chdir: /etc/yum.repos.d/
-      tags:
-        - arangodb
-
-    - name: Install ArangoDB Server
-      dnf:
-        name: arangodb3-3.10.5-1.0
-        state: present
-      tags:
-        - arangodb
-
-    - name: Override ArangoDB Default Language
-      ansible.builtin.copy:
-        content: '{"default":"en_US.UTF-8"}'
-        dest: /var/lib/arangodb3/LANGUAGE
-      tags:
-        - arangodb
-
-    - name: Secure installation
-      expect:
-        command: arango-secure-installation
-        responses:
-          'Please enter a new password for the ArangoDB root user: ': '{{ arangodb_root_password }}\n'
-          'Repeat password: ': '{{ arangodb_root_password }}\n'
-      tags:
-        - arangodb
-
-    # - name: Install Rust Dependencies
+    # - name: Install Nginx
     #   dnf:
-    #     name: '{{ item }}'
+    #     name: nginx
     #     state: present
-    #   with_items:
-    #     - dnf-utils
-    #     - epel-release
-    #     - cmake
-    #     - gcc
-    #     - make
-    #     - curl
-    #     - clang
-
-    # - name: Install Rust
-    #   command: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    #   args:
-    #     creates: /home/{{ ansible_user }}/.cargo/bin
     #   tags:
-    #     - rust
+    #     - nginx
+
+    # - name: Add ArangoDB repository
+    #   command: curl -OL https://download.arangodb.com/arangodb310/RPM/arangodb.repo
+    #   args:
+    #     chdir: /etc/yum.repos.d/
+    #   tags:
+    #     - arangodb
+
+    # - name: Install ArangoDB Server
+    #   dnf:
+    #     name: arangodb3-3.10.5-1.0
+    #     state: present
+    #   tags:
+    #     - arangodb
+
+    # - name: Override ArangoDB Default Language
+    #   ansible.builtin.copy:
+    #     content: '{"default":"en_US.UTF-8"}'
+    #     dest: /var/lib/arangodb3/LANGUAGE
+    #   tags:
+    #     - arangodb
+
+    # - name: Secure installation
+    #   expect:
+    #     command: arango-secure-installation
+    #     responses:
+    #       'Please enter a new password for the ArangoDB root user: ': '{{ arangodb_root_password }}\n'
+    #       'Repeat password: ': '{{ arangodb_root_password }}\n'
+    #   tags:
+    #     - arangodb
+
+    - name: Install Rust Dependencies
+      dnf:
+        name: '{{ item }}'
+        state: present
+      with_items:
+        - dnf-utils
+        - epel-release
+        - cmake
+        - gcc
+        - make
+        - curl
+        - clang
+      tags:
+        - rust
+
+    - name: Install Rust
+      environment:
+        RUSTUP_INIT_SKIP_PATH_CHECK: 'yes'
+        RUSTUP_INIT_DATA_OVERRIDE: 'yes'
+      command: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      args:
+        creates: /home/{{ ansible_user }}/.cargo/bin
+      tags:
+        - rust
+
+    - name: Configure Rust system path variable
+      shell: source ~/.profile && source ~/.cargo/env
+      args:
+        executable: /bin/bash
+      environment:
+        HOME: /home/{{ ansible_user }}
+      tags:
+        - rust
 
     # - name: Enable and start Nginx service
     #   systemd:
