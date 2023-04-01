@@ -11,7 +11,7 @@
         - nginx
 
     - name: Add ArangoDB repository
-      command: curl -OL https://download.arangodb.com/arangodb310/RPM/arangodb310.repo
+      command: curl -OL https://download.arangodb.com/arangodb310/RPM/arangodb.repo
       args:
         chdir: /etc/yum.repos.d/
       tags:
