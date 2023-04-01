@@ -39,8 +39,8 @@
       expect:
         command: arango-secure-installation
         responses:
-          '\u001b[0mPlease enter a new password for the ArangoDB root user: ': '{{ arangodb_root_password }}\n'
-          '\u001b[0mRepeat password: ': '{{ arangodb_root_password }}\n'
+          'Please enter a new password for the ArangoDB root user: ': '{{ arangodb_root_password }}\n'
+          'Repeat password: ': '{{ arangodb_root_password }}\n'
       tags:
         - arangodb
 
