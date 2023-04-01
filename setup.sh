@@ -96,13 +96,14 @@ nginx_enabled="/etc/nginx/sites-enabled"
 
 # Start of script
 
+echo
 echo "============ Checking Dependencies ============"
 echo
 
-sudo dnf update -y &>/dev/null
+sudo dnf update -y
 check_deps "python3"
 check_deps "ansible"
-pip3 install "pexpect"
+pip3 install pexpect
 
 echo
 echo "============ Creating Remote Paths ============"
