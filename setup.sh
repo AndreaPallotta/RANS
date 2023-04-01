@@ -83,6 +83,7 @@ client_dist="./client/dist"
 nginx_configs="./config"
 server_bin="./server/target/release/server"
 ansible_playbook="./playbook.yaml"
+ansible_inventory="./hosts.ini"
 services="./rans.service.d"
 
 client_remote="/var/www/rans/public"
@@ -112,7 +113,7 @@ echo
 echo "============ Run Ansible Playbooks ============"
 echo
 
-ansible-playbook "$ansible_playbook"
+ansible-playbook "$ansible_playbook" -i "$ansible_inventory"
 
 echo
 echo "============ Setup Files ============"
