@@ -112,7 +112,7 @@ echo
 echo "============ Run Ansible Playbooks ============"
 echo
 
-ansible-playbook -i "$ansible_playbook"
+ansible-playbook "$ansible_playbook"
 
 echo
 echo "============ Setup Files ============"
