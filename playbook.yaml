@@ -25,49 +25,65 @@
         - arangodb
 
     - name: Secure installation
-      command: ARANGODB_DEFAULT_ROOT_PASSWORD=root arango-secure-installation
+      command: arango-secure-installation
+      responses:
+        'Please enter password for the ArangoDB root user:': 'root\n'
+        'Repeat password:': 'root\n'
       tags:
         - arangodb
 
-    - name: Install Rust
-      command: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-      args:
-        creates: /home/{{ ansible_user }}/.cargo/bin
-      tags:
-        - rust
+    # - name: Install Rust Dependencies
+    #   dnf:
+    #     name: '{{ item }}'
+    #     state: present
+    #   with_items:
+    #     - dnf-utils
+    #     - epel-release
+    #     - cmake
+    #     - gcc
+    #     - make
+    #     - curl
+    #     - clang
 
-    - name: Enable and start Nginx service
-      systemd:
-        name: nginx
-        enabled: yes
-        state: started
-      tags:
-        - nginx
+    # - name: Install Rust
+    #   command: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    #   args:
+    #     creates: /home/{{ ansible_user }}/.cargo/bin
+    #   tags:
+    #     - rust
 
-    - name: Enable and start ArangoDB service
-      systemd:
-        name: arangodb3
-        enabled: yes
-        state: started
-      tags:
-        - arangodb
+    # - name: Enable and start Nginx service
+    #   systemd:
+    #     name: nginx
+    #     enabled: yes
+    #     state: started
+    #   tags:
+    #     - nginx
 
-    - name: Configure HTTP Firewall
-      become: true
-      firewalld:
-        port: 80/tcp
-        permanent: yes
-        state: enabled
-        immediate: yes
-      tags:
-        - arangodb
+    # - name: Enable and start ArangoDB service
+    #   systemd:
+    #     name: arangodb3
+    #     enabled: yes
+    #     state: started
+    #   tags:
+    #     - arangodb
 
-    - name: Configure ArangoDB Firewall
-      become: true
-      firewalld:
-        port: 8529/tcp
-        permanent: yes
-        state: enabled
-        immediate: yes
-      tags:
-        - arangodb
+    # - name: Configure HTTP Firewall
+    #   become: true
+    #   firewalld:
+    #     port: 80/tcp
+    #     permanent: yes
+    #     state: enabled
+    #     immediate: yes
+    #   tags:
+    #     - arangodb
+
+    # - name: Configure ArangoDB Firewall
+    #   become: true
+    #   firewalld:
+    #     port: 8529/tcp
+    #     permanent: yes
+    #     state: enabled
+    #     immediate: yes
+    #   tags:
+    #     - arangodb

@@ -97,7 +97,7 @@ nginx_enabled="/etc/nginx/sites-enabled"
 
 echo "============ Checking Dependencies ============"
 echo
-check_deps "epel-release"
+
 check_deps "ansible"
 
 echo
@@ -113,6 +113,7 @@ echo "============ Run Ansible Playbooks ============"
 echo
 
 ansible-playbook "$ansible_playbook"
+exit 0
 
 echo
 echo "============ Setup Files ============"
