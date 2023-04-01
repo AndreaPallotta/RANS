@@ -38,7 +38,7 @@
     - name: Secure installation
       expect:
         command: arango-secure-installation
-        ansible.builtin.responses:
+        responses:
           'Please enter password for the ArangoDB root user:': '{{ arangodb_root_password }}\n'
           'Repeat password:': '{{ arangodb_root_password }}\n'
       tags:

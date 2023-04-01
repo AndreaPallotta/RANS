@@ -100,7 +100,7 @@ echo
 
 check_deps "python3"
 check_deps "ansible"
-check_deeps "pexpect"
+check_deps "pexpect"
 
 echo
 echo "============ Creating Remote Paths ============"
@@ -114,7 +114,7 @@ echo
 echo "============ Run Ansible Playbooks ============"
 echo
 
-ansible-playbook "$ansible_playbook"
+ansible-playbook "$ansible_playbook" --ask-become-pass
 exit 0
 
 echo
