@@ -118,14 +118,14 @@ echo
 echo "============ Setup Files ============"
 echo
 
-if [[ ! -e "$client_dist" ]];
+if [[ ! -e "$client_dist" ]]; then
     echo "Building client app..."
     (cd client && npm run build)
     echo "Client app successfully built!"
     echo
 fi
 
-if [[ ! -e "$server_bin" ]];
+if [[ ! -e "$server_bin" ]]; then
     echo "Building server binary..."
     (cd server && cargo build --release --bin server)
     echo "Server binary successfully built!"

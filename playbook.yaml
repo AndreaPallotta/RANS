@@ -1,6 +1,6 @@
 ---
 - name: Install RANS packages
-  hosts: all
+  hosts: 192.168.44.36
   become: true
   tasks:
     - name: Install Nginx
