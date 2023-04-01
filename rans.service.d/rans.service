@@ -1,0 +1,17 @@
+[Unit]
+Description=Daemon for the RANS stack
+
+[Service]
+Type=oneshot
+PIDFile=/var/run/rans.pid
+
+ExecStart=/bin/systemctl start rans.nginx rans.server rans.arangodb
+ExecReload=/bin/systemctl reload rans.nginx rans.server rans.arangodb
+ExecStop=/bin/systemctl stop rans.nginx rans.server rans.arangodb
+TimeoutStopSec=30s
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+Alias=rans.service
+Alias=rans

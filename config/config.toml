@@ -1,0 +1,10 @@
+[Database]
+host = "http://localhost"
+port = 8529
+name = "project2"
+username = "root"
+password = "root"
+
+[Logs]
+path = "/var/log/rans"
+level = "info" # off | debug | trace | info | warn | error

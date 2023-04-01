@@ -1,0 +1,34 @@
+---
+- name: Install RANS packages
+  hosts: all
+  become: true
+  tasks:
+    - name: Install Nginx
+      dnf:
+        name: nginx
+        state: present
+      tags:
+        - nginx
+
+    - name: Install ArangoDB repository
+      vars:
+        arangodb_repo_url: https://download.arangodb.com/arangodb38/RPM/arangodb38.repo
+        dnf:
+          name: "{{ arangodb_repo_url }}"
+          state: present
+        tags:
+          - arangodb
+
+    - name: Install ArangoDB Server
+      dnf:
+        name: arangodb3
+        state: present
+      tags:
+        - arangodb
+
+    - name: Install Rust
+      command: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      args:
+        creates: /home/{{ ansible_user }}/.cargo/bin
+      tags:
+        - rust

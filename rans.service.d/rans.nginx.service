@@ -1,0 +1,16 @@
+[Unit]
+Description=Nginx Service for the RANS Stack
+
+[Service]
+Type=forking
+PIDFile=/var/run/rans.nginx.pid
+
+ExecStartPre=/usr/bin/bash -c '/usr/bin/nginx -t -c /etc/rans/nginx.conf'
+ExecStart=/usr/bin/nginx -c /etc/rans/nginx.conf
+ExecStop=/usr/bin/pkill -f nginx
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+Alias=rans.nginx.service
+Alias=rans.nginx

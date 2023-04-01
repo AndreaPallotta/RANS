@@ -1,0 +1,15 @@
+[Unit]
+Description=ArangoDB Service for the RANS Stack
+
+[Service]
+Type=forking
+PIDFile=/var/run/rans.db.pid
+
+ExecStart=/usr/bin/arangod
+ExecStop=/usr/bin/pkill -f arangodb
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+Alias=rans.db.service
+Alias=rans.db

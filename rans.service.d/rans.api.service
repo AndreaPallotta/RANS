@@ -1,0 +1,15 @@
+[Unit]
+Description=Rust API Service for the RANS Stack
+
+[Service]
+Type=forking
+PIDFile=/var/run/rans.api.pid
+
+ExecStart=/usr/bin/server
+ExecStop=/usr/bin/pkill -f rust
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+Alias=rans.api.service
+Alias=rans.api
