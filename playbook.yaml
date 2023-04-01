@@ -5,7 +5,7 @@
   become_method: sudo
   vars_prompt:
     - name: arangodb_root_password
-      prompt: 'Enter a password for the ArangoDB root user:'
+      prompt: 'Enter a password for the ArangoDB root user'
   tasks:
     - name: Install Nginx
       dnf:
@@ -28,10 +28,17 @@
       tags:
         - arangodb
 
+    - name: Override ArangoDB Default Language
+      ansible.builtin.copy:
+        content: '{"default":"en_US.UTF-8"}'
+        dest: /var/lib/arangodb3/LANGUAGE
+      tags:
+        - arangodb
+
     - name: Secure installation
       expect:
         command: arango-secure-installation
-        responses:
+        ansible.builtin.responses:
           'Please enter password for the ArangoDB root user:': '{{ arangodb_root_password }}\n'
           'Repeat password:': '{{ arangodb_root_password }}\n'
       tags:

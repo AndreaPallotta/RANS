@@ -98,7 +98,9 @@ nginx_enabled="/etc/nginx/sites-enabled"
 echo "============ Checking Dependencies ============"
 echo
 
+check_deps "python3"
 check_deps "ansible"
+check_deeps "pexpect"
 
 echo
 echo "============ Creating Remote Paths ============"
