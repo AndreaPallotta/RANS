@@ -25,12 +25,20 @@
       tags:
         - arangodb
 
+    - name: Prompt for ArangoDB root password
+      vars_prompt:
+        - name: arangodb_root_password
+          prompt: 'Enter a password for the ArangoDB root user:'
+          private: true
+      tags:
+        - arangodb
+
     - name: Secure installation
       expect:
         command: arango-secure-installation
         responses:
-          'Please enter password for the ArangoDB root user:': 'root\n'
-          'Repeat password:': 'root\n'
+          'Please enter password for the ArangoDB root user:': '{{ arangodb_root_password }}\n'
+          'Repeat password:': '{{ arangodb_root_password }}\n'
       tags:
         - arangodb
 
