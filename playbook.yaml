@@ -3,7 +3,6 @@
   hosts: localhost
   become: true
   become_method: sudo
-  become_user: root
   tasks:
     - name: Install Nginx
       dnf:
@@ -27,7 +26,6 @@
         - arangodb
 
     - name: Secure installation
-      ask_become_pass: true
       expect:
         command: arango-secure-installation
         responses:
