@@ -99,6 +99,7 @@ nginx_enabled="/etc/nginx/sites-enabled"
 echo "============ Checking Dependencies ============"
 echo
 
+sudo dnf update -y &>/dev/null
 check_deps "python3"
 check_deps "ansible"
 pip3 install "pexpect"
