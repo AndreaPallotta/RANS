@@ -3,9 +3,9 @@
 # Functions
 check_deps() {
     local package="$1"
-    if ! command -v $package &> /dev/null; then
-        echo "$package is not installed. Installing ansible..."
-        sudo dnf install -y $package
+    if ! command -v "$package" &> /dev/null; then
+        echo "$package is not installed. Installing..."
+        sudo dnf install -y "$package"
         echo "$package successfully installed!"
     else
         echo "$package is already installed. Skipping..."
@@ -85,10 +85,10 @@ server_bin="./server/target/release/server"
 ansible_playbook="./playbook.yaml"
 services="./rans.service.d"
 
-client_remote="/var/www/project2/public"
+client_remote="/var/www/rans/public"
 rans_remote="/etc/rans"
 bin_remote="/usr/bin"
-systemd_remote="/etc/systemd/system"
+systemd_remote="/etc/systemd/"
 nginx_availables="/etc/nginx/sites-available"
 nginx_enabled="/etc/nginx/sites-enabled"
 
@@ -106,7 +106,7 @@ echo
 
 create_path "$rans_remote" true
 create_path "$client_remote" true
-create_path "$rans_serviced" true
+create_path "$systemd_remote" true
 
 echo
 echo "============ Run Ansible Playbooks ============"

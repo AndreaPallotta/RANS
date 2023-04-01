@@ -3,7 +3,7 @@ server {
     listen [::]:80;
     server_name rans.iste444.com;
 
-    root /var/www/project2/public;
+    root /var/www/rans/public;
     index index.html;
 
     location / {
