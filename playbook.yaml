@@ -11,13 +11,11 @@
         - nginx
 
     - name: Add ArangoDB repository
-      vars:
-        arangodb_repo_url: https://download.arangodb.com/arangodb310/RPM/arangodb38.repo
-        get_url:
-          url: /etc/yum.repos.d/arangodb.repo
-          dest: present
-        tags:
-          - arangodb
+      command: curl -OL https://download.arangodb.com/arangodb310/RPM/arangodb38.repo
+      args:
+        chdir: /etc/yum.repos.d/
+      tags:
+        - arangodb
 
     - name: Install ArangoDB Server
       dnf:
