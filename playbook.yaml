@@ -10,19 +10,24 @@
       tags:
         - nginx
 
-    - name: Install ArangoDB repository
+    - name: Add ArangoDB repository
       vars:
-        arangodb_repo_url: https://download.arangodb.com/arangodb38/RPM/arangodb38.repo
-        dnf:
-          name: "{{ arangodb_repo_url }}"
-          state: present
+        arangodb_repo_url: https://download.arangodb.com/arangodb310/RPM/arangodb38.repo
+        get_url:
+          url: /etc/yum.repos.d/arangodb.repo
+          dest: present
         tags:
           - arangodb
 
     - name: Install ArangoDB Server
       dnf:
-        name: arangodb3
+        name: arangodb3-3.10.5-1.0
         state: present
+      tags:
+        - arangodb
+
+    - name: Secure installation
+      command: ARANGODB_DEFAULT_ROOT_PASSWORD=root arango-secure-installation
       tags:
         - arangodb
 
@@ -32,3 +37,39 @@
         creates: /home/{{ ansible_user }}/.cargo/bin
       tags:
         - rust
+
+    - name: Enable and start Nginx service
+      systemd:
+        name: nginx
+        enabled: yes
+        state: started
+      tags:
+        - nginx
+
+    - name: Enable and start ArangoDB service
+      systemd:
+        name: arangodb3
+        enabled: yes
+        state: started
+      tags:
+        - arangodb
+
+    - name: Configure HTTP Firewall
+      become: true
+      firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+      tags:
+        - arangodb
+
+    - name: Configure ArangoDB Firewall
+      become: true
+      firewalld:
+        port: 8529/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+      tags:
+        - arangodb
