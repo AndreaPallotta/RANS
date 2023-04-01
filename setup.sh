@@ -3,6 +3,7 @@
 # Functions
 check_deps() {
     local package="$1"
+
     if ! command -v "$package" &> /dev/null; then
         echo "$package is not installed. Installing..."
         sudo dnf install -y "$package"
@@ -100,7 +101,7 @@ echo
 
 check_deps "python3"
 check_deps "ansible"
-check_deps "pexpect"
+pip3 install "pexpect"
 
 echo
 echo "============ Creating Remote Paths ============"
