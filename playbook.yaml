@@ -25,10 +25,11 @@
         - arangodb
 
     - name: Secure installation
-      command: arango-secure-installation
-      responses:
-        'Please enter password for the ArangoDB root user:': 'root\n'
-        'Repeat password:': 'root\n'
+      expect:
+        command: arango-secure-installation
+        responses:
+          'Please enter password for the ArangoDB root user:': 'root\n'
+          'Repeat password:': 'root\n'
       tags:
         - arangodb
 
