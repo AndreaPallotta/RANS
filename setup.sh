@@ -112,7 +112,7 @@ echo
 echo "============ Run Ansible Playbooks ============"
 echo
 
-ansible-playbook "$ansible_playbook" --ask-become-pass
+ansible-playbook "$ansible_playbook"
 exit 0
 
 echo

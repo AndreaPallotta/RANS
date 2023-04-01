@@ -4,26 +4,26 @@
   become: true
   become_method: sudo
   tasks:
-    - name: Install Nginx
-      dnf:
-        name: nginx
-        state: present
-      tags:
-        - nginx
+    # - name: Install Nginx
+    #   dnf:
+    #     name: nginx
+    #     state: present
+    #   tags:
+    #     - nginx
 
-    - name: Add ArangoDB repository
-      command: curl -OL https://download.arangodb.com/arangodb310/RPM/arangodb.repo
-      args:
-        chdir: /etc/yum.repos.d/
-      tags:
-        - arangodb
+    # - name: Add ArangoDB repository
+    #   command: curl -OL https://download.arangodb.com/arangodb310/RPM/arangodb.repo
+    #   args:
+    #     chdir: /etc/yum.repos.d/
+    #   tags:
+    #     - arangodb
 
-    - name: Install ArangoDB Server
-      dnf:
-        name: arangodb3-3.10.5-1.0
-        state: present
-      tags:
-        - arangodb
+    # - name: Install ArangoDB Server
+    #   dnf:
+    #     name: arangodb3-3.10.5-1.0
+    #     state: present
+    #   tags:
+    #     - arangodb
 
     - name: Prompt for ArangoDB root password
       vars_prompt:
@@ -33,14 +33,14 @@
       tags:
         - arangodb
 
-    - name: Secure installation
-      expect:
-        command: arango-secure-installation
-        responses:
-          'Please enter password for the ArangoDB root user:': '{{ arangodb_root_password }}\n'
-          'Repeat password:': '{{ arangodb_root_password }}\n'
-      tags:
-        - arangodb
+    # - name: Secure installation
+    #   expect:
+    #     command: arango-secure-installation
+    #     responses:
+    #       'Please enter password for the ArangoDB root user:': '{{ arangodb_root_password }}\n'
+    #       'Repeat password:': '{{ arangodb_root_password }}\n'
+    #   tags:
+    #     - arangodb
 
     # - name: Install Rust Dependencies
     #   dnf:
