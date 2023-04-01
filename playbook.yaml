@@ -19,7 +19,7 @@
 
     - name: Install ArangoDB Server
       dnf:
-        name: arangodb3
+        name: arangodb3-3.10.5-1.0
         state: present
       tags:
         - arangodb
