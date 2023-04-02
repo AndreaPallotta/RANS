@@ -40,7 +40,7 @@
         - arangodb
 
     - name: Check if Rust dependencies are installed
-      command: 'rpm -q {{ item }}'
+      command: rpm -q "{{ item }}" || echo "not installed"
       register: rust_dependencies
       with_items:
         - yum-utils
@@ -126,13 +126,12 @@
         - arangodb
 
     - set_fact:
-        package_list: "{{ rust_dependencies.results | rejectattr('stderr', 'search', '^$') | map(attribute='item') | list }}"
+        package_list: "{{ rust_dependencies.results | selectattr('stdout', 'search', 'not installed') | map(attribute='item') | list }}"
     - name: Install Rust Dependencies
       dnf:
         name: '{{ item }}'
         state: present
       with_items: '{{ package_list }}'
-      when: "'not installed' in rust_dependencies.results[item.index].stderr"
       tags:
         - rust
       ignore_errors: true
@@ -154,18 +153,6 @@
         executable: /bin/bash
       tags:
         - rust
-
-    # - name: Configure Rust system path variable
-    #   when: cargo_exists is failed
-    #   become_user: "{{ lookup('env', 'USER') }}"
-    #   become: false
-    #   shell: source ~/.profile source {{ lookup('env', 'HOME') }}/.cargo/env
-    #   args:
-    #     executable: /bin/bash
-    #   environment:
-    #     HOME: /home/{{ lookup('env', 'USER') }}
-    #   tags:
-    #     - rust
 
     - name: Enable and start Nginx service
       when: nginx_status.status.ActiveState != 'active'
@@ -191,8 +178,6 @@
         permanent: yes
         state: enabled
         immediate: yes
-      # vars:
-      #   ansible_python_interpreter: /usr/bin/python3.6
       tags:
         - firewall
       with_items:

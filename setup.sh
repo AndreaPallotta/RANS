@@ -96,7 +96,7 @@ create_zip_cron() {
 }
 
 source_cargo() {
-    source ~/.profile
+    source ~/.bashrc
     source $HOME/.cargo/env
 }
 
@@ -122,7 +122,7 @@ echo "============ Checking Dependencies ============"
 echo
 
 check_deps "ansible-core"
-sudo dnf module install nodejs:18
+sudo dnf module install nodejs:18 -y
 check_deps "nodejs"
 setup_python "3.9"
 check_deps "ansible-core"
@@ -168,6 +168,7 @@ copy "$nginx_configs/config.toml" "$rans_remote"
 copy "$nginx_configs"/*.com "$nginx_availables"
 copy "$client_dist"/* "$client_remote"
 copy "$server_bin" "$bin_remote"
+sudo mkdir /var/log/rans
 
 echo
 
