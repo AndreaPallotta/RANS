@@ -3,69 +3,122 @@
   hosts: localhost
   become: true
   become_method: sudo
-  # vars_prompt:
-  #   - name: arangodb_root_password
-  #     prompt: 'Enter a password for the ArangoDB root user'
+  become_user: "{{ lookup('env', 'USER') }}"
+  gather_facts: true
+  vars_prompt:
+    - name: arangodb_root_password
+      prompt: 'Enter a password for the ArangoDB root user'
+  pre_tasks:
+    - name: Update Repositories
+      dnf: update_cache=yes
+      become_user: root
+      changed_when: false
   tasks:
-    # - name: Install Nginx
-    #   dnf:
-    #     name: nginx
-    #     state: present
-    #   tags:
-    #     - nginx
+    - name: Check if Nginx is installed
+      shell: command -v nginx
+      args:
+        executable: /bin/bash
+      register: nginx_exists
+      ignore_errors: true
+      tags:
+        - nginx
 
-    # - name: Add ArangoDB repository
-    #   command: curl -OL https://download.arangodb.com/arangodb310/RPM/arangodb.repo
-    #   args:
-    #     chdir: /etc/yum.repos.d/
-    #   tags:
-    #     - arangodb
+    - name: Check if ArangoDB is installed
+      shell: command -v arangodb
+      args:
+        executable: /bin/bash
+      register: arangodb_exists
+      ignore_errors: true
+      tags:
+        - arangodb
 
-    # - name: Install ArangoDB Server
-    #   dnf:
-    #     name: arangodb3-3.10.5-1.0
-    #     state: present
-    #   tags:
-    #     - arangodb
-
-    # - name: Override ArangoDB Default Language
-    #   ansible.builtin.copy:
-    #     content: '{"default":"en_US.UTF-8"}'
-    #     dest: /var/lib/arangodb3/LANGUAGE
-    #   tags:
-    #     - arangodb
-
-    # - name: Secure installation
-    #   expect:
-    #     command: arango-secure-installation
-    #     responses:
-    #       'Please enter a new password for the ArangoDB root user: ': '{{ arangodb_root_password }}\n'
-    #       'Repeat password: ': '{{ arangodb_root_password }}\n'
-    #   tags:
-    #     - arangodb
-
-    - name: Install Rust Dependencies
-      dnf:
-        name: '{{ item }}'
-        state: present
+    - name: Check if Rust dependencies are installed
+      command: 'rpm -q {{ item }}'
+      register: rust_dependencies
       with_items:
-        - dnf-utils
+        - yum-utils
         - epel-release
         - cmake
         - gcc
         - make
         - curl
         - clang
+      ignore_errors: true
       tags:
         - rust
 
-    - name: Install Rust
-      environment:
-        RUSTUP_INIT_SKIP_PATH_CHECK: 'yes'
-        RUSTUP_INIT_DATA_OVERRIDE: 'yes'
-      command: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    - name: Check if Cargo is Installed
+      shell: command -v cargo
       args:
-        creates: /home/{{ lookup('env', 'USER') }}/.cargo/bin
+        executable: /bin/bash
+      register: cargo_exists
+      ignore_errors: true
+      tags:
+        - rust
+
+    - name: Install Nginx
+      when: nginx_exists is failed
+      dnf:
+        name: nginx
+        state: present
+      tags:
+        - nginx
+
+    - name: Add ArangoDB repository
+      when: arangodb_exists is failed
+      command: curl -OL https://download.arangodb.com/arangodb310/RPM/arangodb.repo
+      args:
+        chdir: /etc/yum.repos.d/
+      tags:
+        - arangodb
+
+    - name: Install ArangoDB Server
+      when: arangodb_exists is failed
+      dnf:
+        name: arangodb3-3.10.5-1.0
+        state: present
+      tags:
+        - arangodb
+
+    - name: Override ArangoDB Default Language
+      when: arangodb_exists is failed
+      ansible.builtin.copy:
+        content: '{"default":"en_US.UTF-8"}'
+        dest: /var/lib/arangodb3/LANGUAGE
+      tags:
+        - arangodb
+
+    - name: Secure installation
+      when: arangodb_exists is failed
+      expect:
+        command: arango-secure-installation
+        responses:
+          'Please enter a new password for the ArangoDB root user: ': '{{ arangodb_root_password }}\n'
+          'Repeat password: ': '{{ arangodb_root_password }}\n'
+      tags:
+        - arangodb
+
+    - name: Install Rust Dependencies
+      dnf:
+        name: '{{ item }}'
+        state: present
+      with_items: "{{ package_list }}"
+      when: "'not installed' in package_status.results[item.index].stderr"
+      tags:
+        - rust
+      ignore_errors: true
+
+    - name: Download Rust Installed
+      get_url:
+        url: https://sh.rustup.rs
+        dest: /tmp/sh.rustup.rs
+        mode: 0755
+        force: true
+      tags:
+        - rust
+
+    - name: Install Cargo & Rust
+      shell: /tmp/sh.rustup.rs
       tags:
         - rust
 
@@ -79,38 +132,41 @@
       tags:
         - rust
 
-    # - name: Enable and start Nginx service
-    #   systemd:
-    #     name: nginx
-    #     enabled: yes
-    #     state: started
-    #   tags:
-    #     - nginx
+    - name: Enable and start Nginx service
+      systemd:
+        name: nginx
+        enabled: yes
+        state: started
+      tags:
+        - nginx
 
-    # - name: Enable and start ArangoDB service
-    #   systemd:
-    #     name: arangodb3
-    #     enabled: yes
-    #     state: started
-    #   tags:
-    #     - arangodb
+    - name: Enable and start ArangoDB service
+      systemd:
+        name: arangodb3
+        enabled: yes
+        state: started
+      tags:
+        - arangodb
 
-    # - name: Configure HTTP Firewall
-    #   become: true
-    #   firewalld:
-    #     port: 80/tcp
-    #     permanent: yes
-    #     state: enabled
-    #     immediate: yes
-    #   tags:
-    #     - arangodb
+    - name: Configure HTTP Firewall
+      become: true
+      firewalld:
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+      tags:
+        - arangodb
 
-    # - name: Configure ArangoDB Firewall
-    #   become: true
-    #   firewalld:
-    #     port: 8529/tcp
-    #     permanent: yes
-    #     state: enabled
-    #     immediate: yes
-    #   tags:
-    #     - arangodb
+    - name: Configure ArangoDB Firewall
+      become: true
+      firewalld:
+        port: 8529/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+      tags:
+        - arangodb
+
+    - set_fact:
+      package_list: "{{ package_status.results | rejectattr('stderr', 'search', '^$') | map(attribute='item') | list }}"
