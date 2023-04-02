@@ -193,6 +193,8 @@
         permanent: yes
         state: enabled
         immediate: yes
+      vars:
+        ansible_python_interpreter: /usr/bin/python3.6
       tags:
         - firewall
       with_items:
