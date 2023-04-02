@@ -78,13 +78,20 @@ create_symlink() {
 
     if [[ ! -e "$src" ]]; then
         echo "$src not found"
+        return 1
     fi
 
     if [[ ! -e "$dest" ]]; then
         echo "$dest not found"
+        return 1
     fi
 
-    sudo ln -sf "$src" "$dest"
+    if [[ -L "$dest" ]]; then
+        echo "$dest is already a symbolic link"
+        return 1
+    fi
+
+    sudo ln -s "$src" "$dest"
     if [[ $? -ne 0 ]]; then
         echo "Symlink failed"
         return 1
@@ -122,7 +129,7 @@ bin_remote="/usr/bin"
 systemd_remote="/etc/systemd/"
 nginx_availables="/etc/nginx/sites-available"
 nginx_enabled="/etc/nginx/sites-enabled"
-
+log_remote="/var/log/rans"
 
 # Start of script
 
@@ -146,6 +153,7 @@ echo
 create_path "$rans_remote" true
 create_path "$client_remote" true
 create_path "$systemd_remote" true
+create_path "$log_remote" true
 
 echo
 echo "============ Run Ansible Playbook ============"
@@ -179,12 +187,6 @@ copy "$nginx_configs/rans.iste444.com" "$nginx_availables"
 copy "$nginx_configs/ransapi.iste444.com" "$nginx_availables"
 copy "$client_dist"/. "$client_remote"
 copy "$server_bin" "$bin_remote"
-
-if [[ ! -d "sudo mkdir /var/log/rans" ]]; then
-    sudo mkdir /var/log/rans
-else
-    sudo rm -rf /var/log/rans/*
-fi
 
 echo
 
