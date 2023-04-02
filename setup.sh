@@ -4,7 +4,7 @@
 check_deps() {
     local package="$1"
 
-    if ! command -v "$package" &> /dev/null; then
+    if ! rpm -q "$package" &> /dev/null; then
         echo "$package is not installed. Installing..."
         sudo dnf install -y "$package"
         echo "$package successfully installed!"
@@ -63,6 +63,15 @@ copy() {
     echo "$src successfully copied in $dest"
 }
 
+clear_directory() {
+    local path="$1"
+
+    if [[ ! -d "$path" ]]; then
+        echo "Directory clear failed: path is not a folder"
+        sudo rm -rf "$path"/*
+    fi
+}
+
 create_symlink() {
     local src="$1"
     local dest="$2"
@@ -75,7 +84,7 @@ create_symlink() {
         echo "$dest not found"
     fi
 
-    sudo ln -s "$src" "$dest"
+    sudo ln -sf "$src" "$dest"
     if [[ $? -ne 0 ]]; then
         echo "Symlink failed"
         return 1
@@ -118,7 +127,7 @@ nginx_enabled="/etc/nginx/sites-enabled"
 # Start of script
 
 echo
-echo "============ Checking Dependencies ============"
+echo "============ Install Dependencies ============"
 echo
 
 check_deps "ansible-core"
@@ -128,9 +137,10 @@ setup_python "3.9"
 check_deps "ansible-core"
 pip3 install pexpect
 ansible-galaxy collection install ansible.posix
+npm install -g vite
 
 echo
-echo "============ Creating Remote Paths ============"
+echo "============ Create Remote Paths ============"
 echo
 
 create_path "$rans_remote" true
@@ -138,19 +148,19 @@ create_path "$client_remote" true
 create_path "$systemd_remote" true
 
 echo
-echo "============ Run Ansible Playbooks ============"
+echo "============ Run Ansible Playbook ============"
 echo
 
 ansible-playbook "$ansible_playbook" --ask-become-pass
 source_cargo
 
 echo
-echo "============ Setup Files ============"
+echo "============ Set Up Files ============"
 echo
 
 if [[ ! -e "$client_dist" ]]; then
     echo "Building client app..."
-    (cd client && npm run build)
+    (cd client && npm install && npm run build)
     echo "Client app successfully built!"
     echo
 fi
@@ -165,15 +175,21 @@ fi
 copy "$services" "$systemd_remote"
 copy "$nginx_configs/nginx.conf" "$rans_remote"
 copy "$nginx_configs/config.toml" "$rans_remote"
-copy "$nginx_configs"/*.com "$nginx_availables"
-copy "$client_dist"/* "$client_remote"
+copy "$nginx_configs/rans.iste444.com" "$nginx_availables"
+copy "$nginx_configs/ransapi.iste444.com" "$nginx_availables"
+copy "$client_dist"/. "$client_remote"
 copy "$server_bin" "$bin_remote"
-sudo mkdir /var/log/rans
+
+if [[ ! -d "sudo mkdir /var/log/rans" ]]; then
+    sudo mkdir /var/log/rans
+else
+    sudo rm -rf /var/log/rans/*
+fi
 
 echo
 
-create_symlink "$nginx_availables/rans.iste444.com" "$nginx_enabled"
-create_symlink "$nginx_availables/ransapi.iste444.com" "$nginx_enabled"
+create_symlink "$nginx_availables/rans.iste444.com" "$nginx_enabled/rans.iste444.com"
+create_symlink "$nginx_availables/ransapi.iste444.com" "$nginx_enabled/ransapi.iste444.com"
 
 echo
 
@@ -181,7 +197,7 @@ sudo systemctl daemon-reload
 sudo systemctl restart nginx &>/dev/null
 
 echo
-echo "============ Cron Job ============"
+echo "============ Set Up Cron Job ============"
 echo
 
 create_zip_cron
