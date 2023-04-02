@@ -73,7 +73,7 @@
     - name: Check if nginx service is running
       systemd:
         name: 'nginx'
-        state: status
+        state: active
       register: nginx_status
       ignore_errors: true
       tags:
@@ -82,7 +82,7 @@
     - name: Check if arangodb service is running
       systemd:
         name: 'arangodb'
-        state: status
+        state: active
       register: arangodb_status
       ignore_errors: true
       tags:
@@ -167,7 +167,7 @@
         - rust
 
     - name: Enable and start Nginx service
-      when: nginx_status.status != 'running'
+      when: "{{ nginx_status.status.ActiveState != 'active' }}"
       systemd:
         name: nginx
         enabled: yes
@@ -176,7 +176,7 @@
         - nginx
 
     - name: Enable and start ArangoDB service
-      when: "{{ arangodb_status.status != 'running' }}"
+      when: "{{ arangodb.status.ActiveState != 'active' }}"
       systemd:
         name: arangodb3
         enabled: yes
