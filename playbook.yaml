@@ -141,22 +141,27 @@
       ignore_errors: true
 
     - name: Download Rust Installed
+      # when: cargo_exists is failed
       get_url:
         url: https://sh.rustup.rs
         dest: /tmp/sh.rustup.rs
-        mode: 0755
+        mode: '0755'
         force: true
       tags:
         - rust
 
-    - name: Install Cargo & Rust
+    - name: Install Rust
+      # when: cargo_exists is failed
       shell: /tmp/sh.rustup.rs -y
+      args:
+        executable: /bin/bash
       tags:
         - rust
 
     - name: Configure Rust system path variable
+      # when: cargo_exists is failed
       become: false
-      shell: source ~/.profile && source ~/.cargo/env
+      shell: source ~/.profile source {{ HOME }}/.cargo/env
       args:
         executable: /bin/bash
       environment:
@@ -165,7 +170,7 @@
         - rust
 
     - name: Enable and start Nginx service
-      when: "{{ nginx_status.status.ActiveState != 'active' }}"
+      when: nginx_status.status.ActiveState != 'active'
       ansible.builtin.systemd:
         name: nginx
         enabled: yes
@@ -174,7 +179,7 @@
         - nginx
 
     - name: Enable and start ArangoDB service
-      when: "{{ arangodb_status.status.ActiveState != 'active' }}"
+      when: arangodb_status.status.ActiveState != 'active'
       ansible.builtin.systemd:
         name: arangodb3
         enabled: yes
