@@ -101,8 +101,9 @@ echo "============ Checking Dependencies ============"
 echo
 
 sudo dnf update -y
-check_deps "python3"
-check_deps "ansible"
+check_deps "ansible-core"
+check_deps "python39"
+check_deps "ansible-core"
 pip3 install pexpect
 ansible-galaxy collection install ansible.posix
 
@@ -118,8 +119,7 @@ echo
 echo "============ Run Ansible Playbooks ============"
 echo
 
-ansible-playbook "$ansible_playbook" --ask-become-pass
-exit 0
+# ansible-playbook "$ansible_playbook" --ask-become-pass
 
 echo
 echo "============ Setup Files ============"
