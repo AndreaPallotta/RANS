@@ -126,7 +126,7 @@ services="./rans.service.d"
 client_remote="/var/www/rans/public"
 rans_remote="/etc/rans"
 bin_remote="/usr/bin"
-systemd_remote="/etc/systemd/"
+systemd_remote="/etc/systemd/system"
 nginx_availables="/etc/nginx/sites-available"
 nginx_enabled="/etc/nginx/sites-enabled"
 log_remote="/var/log/rans"
@@ -180,6 +180,7 @@ if [[ ! -e "$server_bin" ]]; then
     echo
 fi
 
+copy ./rans.service "$systemd_remote"
 copy "$services" "$systemd_remote"
 copy "$nginx_configs/nginx.conf" "$rans_remote"
 copy "$nginx_configs/config.toml" "$rans_remote"
@@ -192,6 +193,9 @@ echo
 
 create_symlink "$nginx_availables/rans.iste444.com" "$nginx_enabled/rans.iste444.com"
 create_symlink "$nginx_availables/ransapi.iste444.com" "$nginx_enabled/ransapi.iste444.com"
+create_symlink "$systemd_remote"/rans.service.d/rans.nginx.service "$systemd_remote"/rans.nginx.service
+create_symlink "$systemd_remote"/rans.service.d/rans.db.service "$systemd_remote"/rans.db.service
+create_symlink "$systemd_remote"/rans.service.d/rans.api.service "$systemd_remote"/rans.api.service
 
 echo
 
