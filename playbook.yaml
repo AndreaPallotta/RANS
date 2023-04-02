@@ -99,13 +99,13 @@
         - arangodb
 
     - set_fact:
-        package_list: "{{ package_status.results | rejectattr('stderr', 'search', '^$') | map(attribute='item') | list }}"
+        package_list: "{{ rust_dependencies.results | rejectattr('stderr', 'search', '^$') | map(attribute='item') | list }}"
     - name: Install Rust Dependencies
       dnf:
         name: '{{ item }}'
         state: present
       with_items: '{{ package_list }}'
-      when: "'not installed' in package_status.results[item.index].stderr"
+      when: "'not installed' in rust_dependencies.results[item.index].stderr"
       tags:
         - rust
       ignore_errors: true
