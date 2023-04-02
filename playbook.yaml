@@ -70,6 +70,24 @@
       tags:
         - rust
 
+    - name: Check if nginx service is running
+      systemd:
+        name: 'nginx'
+        state: status
+      register: nginx_status
+      ignore_errors: true
+      tags:
+        - nginx
+
+    - name: Check if arangodb service is running
+      systemd:
+        name: 'arangodb'
+        state: status
+      register: arangodb_status
+      ignore_errors: true
+      tags:
+        - arangodb
+
     - name: Install Nginx
       when: nginx_exists is failed
       dnf:
@@ -149,6 +167,7 @@
         - rust
 
     - name: Enable and start Nginx service
+      when: nginx_status.status != 'running'
       systemd:
         name: nginx
         enabled: yes
@@ -157,6 +176,7 @@
         - nginx
 
     - name: Enable and start ArangoDB service
+      when: "{{ arangodb_status.status != 'running' }}"
       systemd:
         name: arangodb3
         enabled: yes
