@@ -13,6 +13,22 @@ check_deps() {
     fi
 }
 
+setup_python() {
+    version="$1"
+    only_python3="$2"
+
+    if [[ -z "$version" ]]; then
+        version="3.9"
+    fi
+
+    check_deps "python${version/./}"
+
+    if [[ "$only_python3" = "true" ]]; then
+        sudo alternatives --set python /usr/bin/python3
+    fi
+    sudo alternatives --set python3 /usr/bin/python3
+}
+
 create_path() {
     local path="$1"
     local is_sudo="$2"
@@ -100,9 +116,8 @@ echo
 echo "============ Checking Dependencies ============"
 echo
 
-sudo dnf update -y
 check_deps "ansible-core"
-check_deps "python39"
+setup_python "3.9"
 check_deps "ansible-core"
 pip3 install pexpect
 ansible-galaxy collection install ansible.posix
