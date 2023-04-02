@@ -3,7 +3,7 @@
   hosts: localhost
   become: true
   become_method: sudo
-  become_user: "{{ lookup('env', 'USER') }}"
+  become_user: root
   gather_facts: true
   vars:
     ansible_python_interpreter: /usr/bin/python3
@@ -78,7 +78,6 @@
         - arangodb
 
     - name: Install Nginx
-      become_user: root
       when: nginx_exists is failed
       dnf:
         name: nginx
@@ -152,6 +151,7 @@
 
     - name: Configure Rust system path variable
       when: cargo_exists is failed
+      become_user: lookup('env', 'USER')
       become: false
       shell: source ~/.profile source {{ lookup('env', 'HOME') }}/.cargo/env
       args:
