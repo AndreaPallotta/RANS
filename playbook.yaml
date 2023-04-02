@@ -20,7 +20,7 @@
 
   tasks:
     - name: Check if Nginx is installed
-      shell: command -v nginx
+      shell: which nginx
       args:
         executable: /bin/bash
       register: nginx_exists
@@ -29,7 +29,7 @@
         - nginx
 
     - name: Check if ArangoDB is installed
-      shell: command -v arangodb
+      shell: which arangodb
       args:
         executable: /bin/bash
       register: arangodb_exists
@@ -62,7 +62,7 @@
         - arangodb
 
     - name: Check if Cargo is Installed
-      shell: command -v cargo
+      shell: which cargo
       args:
         executable: /bin/bash
       register: cargo_exists
@@ -87,6 +87,7 @@
         - arangodb
 
     - name: Install Nginx
+      become_user: root
       when: nginx_exists is failed
       dnf:
         name: nginx

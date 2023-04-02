@@ -157,9 +157,8 @@ fi
 copy "$services" "$systemd_remote"
 copy "$nginx_configs/nginx.conf" "$rans_remote"
 copy "$nginx_configs/config.toml" "$rans_remote"
-copy "$nginx_configs/*rans.iste444.com" "$nginx_availables"
-copy "$nginx_configs/*ransapi.iste444.com" "$nginx_availables"
-copy "$client_dist/*" "$client_remote"
+copy "$nginx_configs"/*.com "$nginx_availables"
+copy "$client_dist"/* "$client_remote"
 copy "$server_bin" "$bin_remote"
 
 echo
