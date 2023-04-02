@@ -5,14 +5,19 @@
   become_method: sudo
   become_user: "{{ lookup('env', 'USER') }}"
   gather_facts: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+
   vars_prompt:
     - name: arangodb_root_password
       prompt: 'Enter a password for the ArangoDB root user'
+
   pre_tasks:
     - name: Update Repositories
       dnf: update_cache=yes
       become_user: root
       changed_when: false
+
   tasks:
     - name: Check if Nginx is installed
       shell: command -v nginx
@@ -46,6 +51,15 @@
       ignore_errors: true
       tags:
         - rust
+
+    - name: Check if ArangoDB is installed
+      shell: rpm -q firewalld
+      args:
+        executable: /bin/bash
+      register: arangodb_exists
+      ignore_errors: true
+      tags:
+        - arangodb
 
     - name: Check if Cargo is Installed
       shell: command -v cargo
@@ -120,7 +134,7 @@
         - rust
 
     - name: Install Cargo & Rust
-      shell: /tmp/sh.rustup.rs
+      shell: /tmp/sh.rustup.rs -y
       tags:
         - rust
 
@@ -150,22 +164,15 @@
       tags:
         - arangodb
 
-    - name: Configure HTTP Firewall
-      become: true
-      firewalld:
-        port: 80/tcp
+    - name: Configure Firewall
+      ansible.posix.firewalld:
+        port: '{{ item }}/tcp'
         permanent: yes
         state: enabled
         immediate: yes
       tags:
-        - arangodb
-
-    - name: Configure ArangoDB Firewall
-      become: true
-      firewalld:
-        port: 8529/tcp
-        permanent: yes
-        state: enabled
-        immediate: yes
-      tags:
-        - arangodb
+        - firewall
+      with_items:
+        - 80
+        - 8529
+        - 3000
