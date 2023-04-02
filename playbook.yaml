@@ -151,7 +151,7 @@
         - rust
 
     - name: Install Rust
-      # when: cargo_exists is failed
+      when: cargo_exists is failed
       shell: /tmp/sh.rustup.rs -y
       args:
         executable: /bin/bash
@@ -159,15 +159,19 @@
         - rust
 
     - name: Configure Rust system path variable
-      # when: cargo_exists is failed
+      when: cargo_exists is failed
       become: false
-      shell: source ~/.profile source {{ HOME }}/.cargo/env
+      shell: source ~/.profile source lookup('env', 'HOME')/.cargo/env
       args:
         executable: /bin/bash
       environment:
         HOME: /home/{{ lookup('env', 'USER') }}
       tags:
         - rust
+
+    - name: Debugging
+      debug:
+        var: lookup('env', 'USER')
 
     - name: Enable and start Nginx service
       when: nginx_status.status.ActiveState != 'active'
