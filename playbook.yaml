@@ -52,16 +52,7 @@
       tags:
         - rust
 
-    - name: Check if ArangoDB is installed
-      shell: rpm -q firewalld
-      args:
-        executable: /bin/bash
-      register: arangodb_exists
-      ignore_errors: true
-      tags:
-        - arangodb
-
-    - name: Check if Cargo is Installed
+    - name: Check if Cargo is installed
       shell: which cargo
       args:
         executable: /bin/bash
