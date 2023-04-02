@@ -144,7 +144,7 @@ setup_python "3.9"
 check_deps "ansible-core"
 pip3 install pexpect
 ansible-galaxy collection install ansible.posix
-npm install -g vite
+sudo npm install -g vite
 
 echo
 echo "============ Create Remote Paths ============"
