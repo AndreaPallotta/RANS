@@ -95,6 +95,11 @@ create_zip_cron() {
     fi
 }
 
+source_cargo() {
+    source ~/.profile
+    source $HOME/.cargo/env
+}
+
 # Variables
 client_dist="./client/dist"
 nginx_configs="./config"
@@ -117,6 +122,8 @@ echo "============ Checking Dependencies ============"
 echo
 
 check_deps "ansible-core"
+sudo dnf module install nodejs:18
+check_deps "nodejs"
 setup_python "3.9"
 check_deps "ansible-core"
 pip3 install pexpect
@@ -135,6 +142,7 @@ echo "============ Run Ansible Playbooks ============"
 echo
 
 ansible-playbook "$ansible_playbook" --ask-become-pass
+source_cargo
 
 echo
 echo "============ Setup Files ============"

@@ -155,17 +155,17 @@
       tags:
         - rust
 
-    - name: Configure Rust system path variable
-      when: cargo_exists is failed
-      become_user: "{{ lookup('env', 'USER') }}"
-      become: false
-      shell: source ~/.profile source {{ lookup('env', 'HOME') }}/.cargo/env
-      args:
-        executable: /bin/bash
-      environment:
-        HOME: /home/{{ lookup('env', 'USER') }}
-      tags:
-        - rust
+    # - name: Configure Rust system path variable
+    #   when: cargo_exists is failed
+    #   become_user: "{{ lookup('env', 'USER') }}"
+    #   become: false
+    #   shell: source ~/.profile source {{ lookup('env', 'HOME') }}/.cargo/env
+    #   args:
+    #     executable: /bin/bash
+    #   environment:
+    #     HOME: /home/{{ lookup('env', 'USER') }}
+    #   tags:
+    #     - rust
 
     - name: Enable and start Nginx service
       when: nginx_status.status.ActiveState != 'active'
