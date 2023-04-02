@@ -104,6 +104,7 @@ sudo dnf update -y
 check_deps "python3"
 check_deps "ansible"
 pip3 install pexpect
+ansible-galaxy collection install ansible.posix
 
 echo
 echo "============ Creating Remote Paths ============"
