@@ -71,18 +71,16 @@
         - rust
 
     - name: Check if nginx service is running
-      systemd:
+      ansible.builtin.systemd:
         name: 'nginx'
-        state: active
       register: nginx_status
       ignore_errors: true
       tags:
         - nginx
 
     - name: Check if arangodb service is running
-      systemd:
+      ansible.builtin.systemd:
         name: 'arangodb'
-        state: active
       register: arangodb_status
       ignore_errors: true
       tags:
@@ -168,7 +166,7 @@
 
     - name: Enable and start Nginx service
       when: "{{ nginx_status.status.ActiveState != 'active' }}"
-      systemd:
+      ansible.builtin.systemd:
         name: nginx
         enabled: yes
         state: started
@@ -176,8 +174,8 @@
         - nginx
 
     - name: Enable and start ArangoDB service
-      when: "{{ arangodb.status.ActiveState != 'active' }}"
-      systemd:
+      when: "{{ arangodb_status.status.ActiveState != 'active' }}"
+      ansible.builtin.systemd:
         name: arangodb3
         enabled: yes
         state: started
