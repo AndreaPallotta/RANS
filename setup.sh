@@ -160,6 +160,11 @@ echo "============ Run Ansible Playbook ============"
 echo
 
 ansible-playbook "$ansible_playbook" --ask-become-pass
+if [ $? -ne 0 ]; then
+  echo "The Ansible playbook failed. Stopping gracefully..."
+  exit 1
+fi
+
 source_cargo
 
 echo
