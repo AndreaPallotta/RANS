@@ -204,7 +204,7 @@ sudo chown root:systemd-journal "$bin_remote"/rans_api
 sudo chmod 644 "$systemd_remote"/rans.service.d/rans.api.service
 sudo chmod 644 "$systemd_remote"/rans.service
 sudo chmod 644 /var/run/rans*.pid
-sudo chmod 644 "$bin_remote"/rans_api
+sudo chmod 744 "$bin_remote"/rans_api
 
 
 echo
