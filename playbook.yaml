@@ -11,6 +11,11 @@
   vars_prompt:
     - name: arangodb_root_password
       prompt: 'Enter a password for the ArangoDB root user'
+      confirm: true
+
+    - name: arangodb_database_name
+      prompt: 'Enter the name of the database you want to create'
+      private: false
 
   pre_tasks:
     - name: Update Repositories
@@ -28,6 +33,10 @@
       failed_when: false
       tags:
         - nginx
+
+    - name: Debug
+      debug:
+        var: arangodb_root_password
 
     - name: Check if ArangoDB is installed
       shell: which arangodb
@@ -64,24 +73,6 @@
       failed_when: false
       tags:
         - rust
-
-    - name: Check if nginx service is running
-      ansible.builtin.systemd:
-        name: 'nginx'
-      register: nginx_status
-      ignore_errors: true
-      failed_when: false
-      tags:
-        - nginx
-
-    - name: Check if arangodb service is running
-      ansible.builtin.systemd:
-        name: 'arangodb'
-      register: arangodb_status
-      ignore_errors: true
-      failed_when: false
-      tags:
-        - arangodb
 
     - name: Install Nginx
       when: nginx_exists is failed
@@ -120,8 +111,21 @@
       expect:
         command: arango-secure-installation
         responses:
-          'Please enter a new password for the ArangoDB root user: ': '{{ arangodb_root_password }}\n'
-          'Repeat password: ': '{{ arangodb_root_password }}\n'
+          'Please enter a new password for the ArangoDB root user: ': '{{ arangodb_root_password }}'
+          'Repeat password: ': '{{ arangodb_root_password }}'
+      ignore_errors: true
+      tags:
+        - arangodb
+
+    - name: Create Database
+      command: arangosh --server.database _system --server.password="{{ arangodb_root_password }}" --javascript.execute-string "var db = require('internal').db; db._createDatabase('{{ arangodb_database_name }}')"
+      ignore_errors: true
+      tags:
+        - arangodb
+
+    - name: Create Tables
+      command: arangosh --server.database _system --server.password="{{ arangodb_root_password }}" --javascript.execute-string "var db = require('internal').db; db.useDatabase('{{ arangodb_database_name }}'); db._create('Item'); db._create('User')"
+      ignore_errors: true
       tags:
         - arangodb
 
@@ -153,24 +157,6 @@
         executable: /bin/bash
       tags:
         - rust
-
-    - name: Enable and start Nginx service
-      when: nginx_status.status.ActiveState != 'active'
-      ansible.builtin.systemd:
-        name: nginx
-        enabled: yes
-        state: started
-      tags:
-        - nginx
-
-    - name: Enable and start ArangoDB service
-      when: arangodb_status.status.ActiveState != 'active'
-      ansible.builtin.systemd:
-        name: arangodb3
-        enabled: yes
-        state: started
-      tags:
-        - arangodb
 
     - name: Configure Firewall
       ansible.posix.firewalld:
