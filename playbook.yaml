@@ -117,6 +117,15 @@
       tags:
         - arangodb
 
+    - name: Enable and start ArangoDB service
+      when: arangodb_status.status.ActiveState != 'active'
+      ansible.builtin.systemd:
+        name: arangodb3
+        enabled: yes
+        state: started
+      tags:
+        - arangodb
+
     - name: Create Database
       command: arangosh --server.database _system --server.password="{{ arangodb_root_password }}" --javascript.execute-string "var db = require('internal').db; db._createDatabase('{{ arangodb_database_name }}')"
       ignore_errors: true
@@ -157,6 +166,15 @@
         executable: /bin/bash
       tags:
         - rust
+
+    - name: Enable and start Nginx service
+      when: nginx_status.status.ActiveState != 'active'
+      ansible.builtin.systemd:
+        name: nginx
+        enabled: yes
+        state: started
+      tags:
+        - nginx
 
     - name: Configure Firewall
       ansible.posix.firewalld:
