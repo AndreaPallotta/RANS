@@ -6,7 +6,7 @@ use server::requests::routes::create_routes;
 
 #[tokio::main]
 async fn main() {
-    let parse_config = Config::from("../config/config.toml");
+    let parse_config = Config::from("/etc/rans/config.toml");
 
     let config = match parse_config {
         Ok(config) => config,

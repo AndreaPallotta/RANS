@@ -6,8 +6,9 @@ Type=forking
 PIDFile=/var/run/rans.api.pid
 
 ExecStart=/usr/bin/server
-ExecStop=/usr/bin/pkill -f rust
-Restart=always
+ExecReload=/usr/bin/pkill -HUP -f $MAINPID
+KillSignal=SIGQUIT
+TimeoutStopSec=5
 
 [Install]
 WantedBy=multi-user.target

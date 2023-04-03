@@ -119,7 +119,7 @@ source_cargo() {
 # Variables
 client_dist="./client/dist"
 nginx_configs="./config"
-server_bin="./server/target/release/server"
+api_bin="./server/target/release/rans_api"
 ansible_playbook="./playbook.yaml"
 services="./rans.service.d"
 
@@ -178,10 +178,10 @@ if [[ ! -e "$client_dist" ]]; then
     echo
 fi
 
-if [[ ! -e "$server_bin" ]]; then
-    echo "Building server binary..."
-    (cd server && cargo build --release --bin server)
-    echo "Server binary successfully built!"
+if [[ ! -f "$api_bin" ]]; then
+    echo "Building API binary..."
+    (cd server && cargo build --release --bin rans_api)
+    echo "API binary successfully built!"
     echo
 fi
 
@@ -192,7 +192,20 @@ copy "$nginx_configs/config.toml" "$rans_remote"
 copy "$nginx_configs/rans.iste444.com" "$nginx_availables"
 copy "$nginx_configs/ransapi.iste444.com" "$nginx_availables"
 copy "$client_dist"/. "$client_remote"
-copy "$server_bin" "$bin_remote"
+copy "$api_bin" "$bin_remote"
+
+sudo touch /var/run/rans.pid
+sodo touch /var/run/rans.api.pid
+
+sudo chown root:systemd-journal "$systemd_remote"/rans.service.d/rans.api.service
+sudo chown root:systemd-journal "$systemd_remote"/rans.service
+sudo chown root:systemd-journal /var/run/rans*.pid
+sudo chown root:systemd-journal "$bin_remote"/rans_api
+sudo chmod 644 "$systemd_remote"/rans.service.d/rans.api.service
+sudo chmod 644 "$systemd_remote"/rans.service
+sudo chmod 644 /var/run/rans*.pid
+sudo chmod 644 "$bin_remote"/rans_api
+
 
 echo
 
@@ -205,7 +218,7 @@ create_symlink "$systemd_remote"/rans.service.d/rans.api.service "$systemd_remot
 echo
 
 sudo systemctl daemon-reload
-sudo systemctl restart nginx &>/dev/null
+sudo systemctl start rans.service
 
 echo
 echo "============ Set Up Cron Job ============"
