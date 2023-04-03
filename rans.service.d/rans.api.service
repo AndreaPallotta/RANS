@@ -5,7 +5,7 @@ Description=Rust API Service for the RANS Stack
 Type=forking
 PIDFile=/var/run/rans.api.pid
 
-ExecStart=/usr/bin/server
+ExecStart=/usr/bin/rans_api
 ExecReload=/usr/bin/pkill -HUP -f $MAINPID
 KillSignal=SIGQUIT
 TimeoutStopSec=5
