@@ -140,14 +140,13 @@ cleanup() {
         echo "An error occurred while building the client app. Exit status: $exit_status"
     fi
 
-    sudo dnf remove nginx
-    sudo dnf remove arangodb3
+    sudo dnf remove nginx arangodb3 -y
 }
 
 # Variables
 client_dist="./client/dist"
 nginx_configs="./config"
-api_bin="./server/target/release/rans_api"
+api_bin="./server/target/release/server"
 ansible_playbook="./playbook.yaml"
 services="./rans.service.d"
 
@@ -219,7 +218,7 @@ fi
 
 if [[ ! -f "$api_bin" ]]; then
     echo "Building API binary..."
-    (cd server && cargo build --release --bin rans_api)
+    (cd server && cargo build --release --bin server)
     if [ $? -ne 0 ]; then
         echo "Error: Failed to build API binary. Stopping gracefully..."
         exit 1
@@ -244,11 +243,11 @@ sodo touch /var/run/rans.api.pid
 sudo chown root:systemd-journal "$systemd_remote"/rans.service.d/rans.api.service
 sudo chown root:systemd-journal "$systemd_remote"/rans.service
 sudo chown root:systemd-journal /var/run/rans*.pid
-sudo chown root:systemd-journal "$bin_remote"/rans_api
+sudo chown root:systemd-journal "$bin_remote"/server
 sudo chmod 644 "$systemd_remote"/rans.service.d/rans.api.service
 sudo chmod 644 "$systemd_remote"/rans.service
 sudo chmod 644 /var/run/rans*.pid
-sudo chmod 744 "$bin_remote"/rans_api
+sudo chmod 744 "$bin_remote"/server
 
 
 echo
