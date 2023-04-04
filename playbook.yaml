@@ -23,14 +23,12 @@
       become_user: root
       changed_when: false
       ignore_errors: true
-      no_log: true
 
   tasks:
     - name: Check if Nginx is installed
       command: rpm -q nginx
       register: nginx_exists
       failed_when: false
-      no_log: true
       tags:
         - nginx
 
@@ -38,7 +36,6 @@
       command: rpm -q arangodb
       register: arangodb_exists
       failed_when: false
-      no_log: true
       tags:
         - arangodb
 
@@ -54,7 +51,6 @@
         - curl
         - clang
       ignore_errors: true
-      no_log: true
       tags:
         - rust
 
@@ -62,7 +58,6 @@
       command: rpm -q cargo
       register: cargo_exists
       failed_when: false
-      no_log: true
       tags:
         - rust
 
@@ -71,7 +66,6 @@
         name: 'nginx'
       register: nginx_status
       failed_when: false
-      no_log: true
       tags:
         - nginx
 
@@ -80,7 +74,6 @@
         name: 'arangodb'
       register: arangodb_status
       failed_when: false
-      no_log: true
       tags:
         - arangodb
 
@@ -161,6 +154,7 @@
 
     - name: Download Rust Installed
       when: cargo_exists.rc == 1
+      register: cargo_download
       get_url:
         url: https://sh.rustup.rs
         dest: /tmp/sh.rustup.rs
@@ -169,13 +163,22 @@
       tags:
         - rust
 
+    - name: Debug Installer
+      debug:
+        var: cargo_download
+
     - name: Install Rust
       when: cargo_exists.rc == 1
+      register: cargo_install
       shell: /tmp/sh.rustup.rs -y
       args:
         executable: /bin/bash
       tags:
         - rust
+
+    - name: Debug Installer
+      debug:
+        var: cargo_install
 
     - name: Configure Firewall
       ansible.posix.firewalld:
