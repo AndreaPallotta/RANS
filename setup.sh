@@ -145,8 +145,6 @@ cleanup() {
     sudo rm -rf "$rans_remote"
     sudo rm -rf "$client_remote"
     sudo rm -rf "$log_remote"
-    sudo rm -rf "$nginx_availables"
-    sudo rm -rf "$nginx_enabled"
     sudo rm -rf "$systemd_remote"/rans.service.d
 }
 
@@ -161,15 +159,12 @@ client_remote="/var/www/rans/public"
 rans_remote="/etc/rans"
 bin_remote="/usr/bin"
 systemd_remote="/etc/systemd/system"
-nginx_availables="/etc/nginx/sites-available"
-nginx_enabled="/etc/nginx/sites-enabled"
+nginx="/etc/nginx/"
 log_remote="/var/log/rans"
 
 # Start of script
 
 trap cleanup EXIT
-
-cleanup
 
 echo
 echo "============ Install Dependencies ============"
@@ -191,8 +186,6 @@ echo
 create_path "$rans_remote" true
 create_path "$client_remote" true
 create_path "$log_remote" true
-create_path "$nginx_availables" true
-create_path "$nginx_enabled" true
 
 sudo chown -R $USER:$USER "$log_remote"
 sudo chmod u+w "$log_remote"
@@ -243,7 +236,7 @@ fi
 
 copy ./rans.service "$systemd_remote"
 copy "$services" "$systemd_remote"
-copy "$nginx_configs/nginx.conf" "$rans_remote"
+copy "$nginx_configs/nginx.conf" "$nginx"
 copy "$nginx_configs/config.toml" "$rans_remote"
 copy "$client_dist"/. "$client_remote"
 copy "$api_bin" "$bin_remote"
@@ -270,7 +263,7 @@ create_symlink "$systemd_remote/rans.service.d/rans.api.service" "$systemd_remot
 echo
 
 sudo systemctl daemon-reload
-sudo systemctl start rans.service
+sudo systemctl start nginx.service arangodb.service rans.api.service
 
 echo
 echo "============ Set Up Cron Job ============"
