@@ -141,7 +141,7 @@ cleanup() {
         echo "An error occurred while building the client app. Exit status: $exit_status"
     fi
 
-    # sudo dnf remove nginx arangodb3 -y
+    sudo dnf remove nginx arangodb3 -y
     sudo rm -rf "$rans_remote"
     sudo rm -rf "$client_remote"
     sudo rm -rf "$log_remote"
@@ -168,6 +168,8 @@ log_remote="/var/log/rans"
 # Start of script
 
 trap cleanup EXIT
+
+cleanup
 
 echo
 echo "============ Install Dependencies ============"
@@ -243,8 +245,6 @@ copy ./rans.service "$systemd_remote"
 copy "$services" "$systemd_remote"
 copy "$nginx_configs/nginx.conf" "$rans_remote"
 copy "$nginx_configs/config.toml" "$rans_remote"
-copy "$nginx_configs/rans.iste444.com" "$nginx_availables"
-copy "$nginx_configs/ransapi.iste444.com" "$nginx_availables"
 copy "$client_dist"/. "$client_remote"
 copy "$api_bin" "$bin_remote"
 
@@ -265,8 +265,6 @@ sudo restorecon -v "$bin_remote"/server
 
 echo
 
-create_symlink "$nginx_availables/rans.iste444.com" "$nginx_enabled"
-create_symlink "$nginx_availables/ransapi.iste444.com" "$nginx_enabled"
 create_symlink "$systemd_remote/rans.service.d/rans.api.service" "$systemd_remote"
 
 echo
