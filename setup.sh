@@ -192,6 +192,9 @@ create_path "$log_remote" true
 create_path "$nginx_availables" true
 create_path "$nginx_enabled" true
 
+sudo chown -R $USER:$USER "$log_remote"
+sudo chmod u+w "$log_remote"
+
 echo
 echo "============ Run Ansible Playbook ============"
 echo

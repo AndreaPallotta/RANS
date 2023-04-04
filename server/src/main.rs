@@ -36,5 +36,8 @@ async fn get_db(config: DatabaseConfig) -> Database {
         db_password: config.password,
     };
 
-    Database::new(connector).await.expect("Failed to connect to database")
+    match Database::new(connector).await {
+        Ok(db) => db,
+        Err(e) => panic!("Failed to connect to database: {:?}", e),
+    }
 }

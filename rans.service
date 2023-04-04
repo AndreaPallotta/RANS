@@ -3,18 +3,18 @@ Description=Daemon for the RANS stack
 
 [Service]
 Type=forking
-PIDFile=/var/run/rans.pid
 
 ExecStartPre=/usr/bin/systemctl stop nginx.service rans.api.service arangodb3.service
 ExecStartPre=/usr/bin/rm -f /run/nginx.pid
 ExecStartPre=/usr/sbin/nginx -t
-ExecStart=/usr/bin/systemctl start arangodb3.service rans.api.service && /usr/sbin/nginx -c /etc/rans/nginx.conf
+ExecStart=/usr/bin/systemctl start nginx.service arangodb3.service rans.api.service
+ExecStartPost=/bin/sh -c 'umask 022; pgrep rans > /var/run/rans.pid'
 ExecReload=/usr/bin/systemctl reload nginx.service rans.api.service arangodb3.service
 ExecStop=/usr/bin/systemctl stop nginx.service rans.api.service arangodb3.service
 KillSignal=SIGQUIT
 TimeoutStopSec=5
 KillMode=mixed
-
+PIDFile=/var/run/rans.pid
 
 [Install]
 WantedBy=multi-user.target
