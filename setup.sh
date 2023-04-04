@@ -147,7 +147,7 @@ cleanup() {
     sudo rm -rf "$log_remote"
     sudo rm -rf "$nginx_availables"
     sudo rm -rf "$nginx_enabled"
-    sudo rm -rf "$systemd_remote"/rans.service.d"
+    sudo rm -rf "$systemd_remote"/rans.service.d
 }
 
 # Variables
