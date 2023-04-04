@@ -140,8 +140,8 @@ cleanup() {
         echo "An error occurred while building the client app. Exit status: $exit_status"
     fi
 
-    sudo dnf uninstall nginx
-    sudo dnf uninstall arangodb3
+    sudo dnf remove nginx
+    sudo dnf remove arangodb3
 }
 
 # Variables
