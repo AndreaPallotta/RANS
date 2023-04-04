@@ -91,15 +91,16 @@ clear_directory() {
 
 create_symlink() {
     local src="$1"
-    local dest="$2"
+    local dest_dir="$2"
+    local dest="$dest_dir/$(basename $src)"
 
     if [[ ! -e "$src" ]]; then
         echo "$src not found"
         return 1
     fi
 
-    if [[ ! -e "$dest" ]]; then
-        echo "$dest not found"
+    if [[ ! -d "$dest_dir" ]]; then
+        echo "$dest_dir not found"
         return 1
     fi
 
@@ -140,13 +141,13 @@ cleanup() {
         echo "An error occurred while building the client app. Exit status: $exit_status"
     fi
 
-    sudo dnf remove nginx arangodb3 -y
+    # sudo dnf remove nginx arangodb3 -y
     sudo rm -rf "$rans_remote"
     sudo rm -rf "$client_remote"
+    sudo rm -rf "$log_remote"
     sudo rm -rf "$nginx_availables"
     sudo rm -rf "$nginx_enabled"
-    sudo rm -rf "$log_remote"
-    sudo rm -rf ""$systemd_remote"/rans.service.d"
+    sudo rm -rf "$systemd_remote"/rans.service.d"
 }
 
 # Variables
@@ -187,7 +188,6 @@ echo
 
 create_path "$rans_remote" true
 create_path "$client_remote" true
-create_path "$systemd_remote" true
 create_path "$log_remote" true
 create_path "$nginx_availables" true
 create_path "$nginx_enabled" true
@@ -246,7 +246,7 @@ copy "$client_dist"/. "$client_remote"
 copy "$api_bin" "$bin_remote"
 
 sudo touch /var/run/rans.pid
-sodo touch /var/run/rans.api.pid
+sudo touch /var/run/rans.api.pid
 
 sudo chown root:systemd-journal "$systemd_remote"/rans.service.d/rans.api.service
 sudo chown root:systemd-journal "$systemd_remote"/rans.service
@@ -260,9 +260,9 @@ sudo chmod 744 "$bin_remote"/server
 
 echo
 
-create_symlink "$nginx_availables/rans.iste444.com" "$nginx_enabled/rans.iste444.com"
-create_symlink "$nginx_availables/ransapi.iste444.com" "$nginx_enabled/ransapi.iste444.com"
-create_symlink "$systemd_remote"/rans.service.d/rans.api.service "$systemd_remote"/rans.api.service
+create_symlink "$nginx_availables/rans.iste444.com" "$nginx_enabled"
+create_symlink "$nginx_availables/ransapi.iste444.com" "$nginx_enabled"
+create_symlink "$systemd_remote/rans.service.d/rans.api.service" "$systemd_remote"
 
 echo
 
