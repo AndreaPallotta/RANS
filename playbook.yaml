@@ -22,6 +22,7 @@
       dnf: update_cache=yes
       become_user: root
       changed_when: false
+      ignore_errors: true
 
   tasks:
     - name: Check if Nginx is installed
@@ -29,7 +30,7 @@
       args:
         executable: /bin/bash
       register: nginx_exists
-      ignore_errors: true
+      failed_when_result: false
       tags:
         - nginx
 
@@ -38,7 +39,7 @@
       args:
         executable: /bin/bash
       register: arangodb_exists
-      ignore_errors: true
+      failed_when_result: false
       tags:
         - arangodb
 
@@ -62,7 +63,7 @@
       args:
         executable: /bin/bash
       register: cargo_exists
-      ignore_errors: true
+      failed_when_result: false
       tags:
         - rust
 
@@ -70,19 +71,19 @@
       ansible.builtin.systemd:
         name: 'nginx'
       register: nginx_status
-      ignore_errors: true
+      failed_when_result: false
       tags:
         - nginx
     - name: Check if arangodb service is running
       ansible.builtin.systemd:
         name: 'arangodb'
       register: arangodb_status
-      ignore_errors: true
+      failed_when_result: false
       tags:
         - arangodb
 
     - name: Install Nginx
-      when: nginx_exists is failed
+      when: nginx_exists.rc == 1
       dnf:
         name: nginx
         state: present
@@ -90,7 +91,7 @@
         - nginx
 
     - name: Add ArangoDB repository
-      when: arangodb_exists is failed
+      when: arangodb_exists.rc == 1
       command: curl -OL https://download.arangodb.com/arangodb310/RPM/arangodb.repo
       args:
         chdir: /etc/yum.repos.d/
@@ -98,7 +99,7 @@
         - arangodb
 
     - name: Install ArangoDB Server
-      when: arangodb_exists is failed
+      when: arangodb_exists.rc == 1
       dnf:
         name: arangodb3-3.10.5-1.0
         state: present
@@ -106,7 +107,7 @@
         - arangodb
 
     - name: Override ArangoDB Default Language
-      when: arangodb_exists is failed
+      when: arangodb_exists.rc == 1
       ansible.builtin.copy:
         content: '{"default":"en_US.UTF-8"}'
         dest: /var/lib/arangodb3/LANGUAGE
@@ -114,7 +115,7 @@
         - arangodb
 
     - name: Secure installation
-      when: arangodb_exists is failed
+      when: arangodb_exists.rc == 1
       expect:
         command: arango-secure-installation
         responses:
@@ -157,7 +158,7 @@
         - rust
 
     - name: Download Rust Installed
-      when: cargo_exists is failed
+      when: cargo_exists.rc == 1
       get_url:
         url: https://sh.rustup.rs
         dest: /tmp/sh.rustup.rs
@@ -167,7 +168,7 @@
         - rust
 
     - name: Install Rust
-      when: cargo_exists is failed
+      when: cargo_exists.rc == 1
       shell: /tmp/sh.rustup.rs -y
       args:
         executable: /bin/bash
