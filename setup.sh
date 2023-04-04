@@ -141,6 +141,12 @@ cleanup() {
     fi
 
     sudo dnf remove nginx arangodb3 -y
+    sudo rm -rf "$rans_remote"
+    sudo rm -rf "$client_remote"
+    sudo rm -rf "$nginx_availables"
+    sudo rm -rf "$nginx_enabled"
+    sudo rm -rf "$log_remote"
+    sudo rm -rf ""$systemd_remote"/rans.service.d"
 }
 
 # Variables
@@ -183,6 +189,8 @@ create_path "$rans_remote" true
 create_path "$client_remote" true
 create_path "$systemd_remote" true
 create_path "$log_remote" true
+create_path "$nginx_availables" true
+create_path "$nginx_enabled" true
 
 echo
 echo "============ Run Ansible Playbook ============"
@@ -204,7 +212,7 @@ echo
 echo "============ Set Up Files ============"
 echo
 
-if [[ ! -e "$client_dist" ]]; then
+if [[ ! -d "$client_dist" ]]; then
     echo "Building client app..."
     (cd client && npm install && npm run build)
     if [ $? -ne 0 ]; then
@@ -254,8 +262,6 @@ echo
 
 create_symlink "$nginx_availables/rans.iste444.com" "$nginx_enabled/rans.iste444.com"
 create_symlink "$nginx_availables/ransapi.iste444.com" "$nginx_enabled/ransapi.iste444.com"
-create_symlink "$systemd_remote"/rans.service.d/rans.nginx.service "$systemd_remote"/rans.nginx.service
-create_symlink "$systemd_remote"/rans.service.d/rans.db.service "$systemd_remote"/rans.db.service
 create_symlink "$systemd_remote"/rans.service.d/rans.api.service "$systemd_remote"/rans.api.service
 
 echo
