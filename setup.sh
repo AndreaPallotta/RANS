@@ -253,12 +253,14 @@ sudo touch /var/run/rans.api.pid
 
 sudo chown root:systemd-journal "$systemd_remote"/rans.service.d/rans.api.service
 sudo chown root:systemd-journal "$systemd_remote"/rans.service
-sudo chown root:systemd-journal /var/run/rans*.pid
+sudo chown root:systemd-journal /var/run/rans.pid
 sudo chown root:systemd-journal "$bin_remote"/server
 sudo chmod 644 "$systemd_remote"/rans.service.d/rans.api.service
 sudo chmod 644 "$systemd_remote"/rans.service
-sudo chmod 644 /var/run/rans*.pid
+sudo chmod 644 /var/run/rans.pid
 sudo chmod 744 "$bin_remote"/server
+sudo semanage fcontext -a -t bin_t "$bin_remote"/server
+sudo restorecon -v "$bin_remote"/server
 
 
 echo

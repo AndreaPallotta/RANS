@@ -4,7 +4,7 @@ use std::net::SocketAddr;
 use server::db::{Database, DBConnector};
 use server::requests::routes::create_routes;
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() {
     let parse_config = Config::from("/etc/rans/config.toml");
 
