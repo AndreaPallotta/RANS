@@ -28,14 +28,14 @@
     - name: Check if Nginx is installed
       command: rpm -q nginx
       register: nginx_exists
-      failed_when_result: false
+      failed_when: false
       tags:
         - nginx
 
     - name: Check if ArangoDB is installed
       command: rpm -q arangodb
       register: arangodb_exists
-      failed_when_result: false
+      failed_when: false
       tags:
         - arangodb
 
@@ -57,7 +57,7 @@
     - name: Check if Cargo is installed
       command: rpm -q cargo
       register: cargo_exists
-      failed_when_result: false
+      failed_when: false
       tags:
         - rust
 
@@ -65,14 +65,14 @@
       ansible.builtin.systemd:
         name: 'nginx'
       register: nginx_status
-      failed_when_result: false
+      failed_when: false
       tags:
         - nginx
     - name: Check if arangodb service is running
       ansible.builtin.systemd:
         name: 'arangodb'
       register: arangodb_status
-      failed_when_result: false
+      failed_when: false
       tags:
         - arangodb
 
