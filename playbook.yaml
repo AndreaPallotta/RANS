@@ -163,23 +163,6 @@
       tags:
         - rust
 
-    - name: Debug Installer
-      debug:
-        var: cargo_download
-
-    - name: Install Rust
-      when: cargo_exists.rc == 1
-      register: cargo_install
-      shell: /tmp/sh.rustup.rs -y
-      args:
-        executable: /bin/bash
-      tags:
-        - rust
-
-    - name: Debug Installer
-      debug:
-        var: cargo_install
-
     - name: Configure Firewall
       ansible.posix.firewalld:
         port: '{{ item }}/tcp'

@@ -13,6 +13,23 @@ check_deps() {
     fi
 }
 
+install_npm() {
+    local package="$1"
+
+    if [[ -z "$package" ]]; then
+        echo "Package not specified. Skipping..."
+        return 1
+    fi
+
+    if ! npm list -g "$package" &>/dev/null; then
+        echo "NPM $package is not installed. Installing..."
+        sudo npm install -g "$package"
+        echo "NPM $package successfully installed!"
+    else
+        echo "NPM $package is already installed. Skipping..."
+    fi
+}
+
 setup_python() {
     version="$1"
     only_python3="$2"
@@ -111,9 +128,20 @@ create_zip_cron() {
     fi
 }
 
-source_cargo() {
+install_cargo() {
+    /tmp/sh.rustup.rs -y
     source ~/.bashrc
     source $HOME/.cargo/env
+}
+
+cleanup() {
+    local exit_status=$?
+    if [ $exit_status -ne 0 ]; then
+        echo "An error occurred while building the client app. Exit status: $exit_status"
+    fi
+
+    sudo dnf uninstall nginx
+    sudo dnf uninstall arangodb3
 }
 
 # Variables
@@ -133,18 +161,20 @@ log_remote="/var/log/rans"
 
 # Start of script
 
+trap cleanup EXIT
+
 echo
 echo "============ Install Dependencies ============"
 echo
 
-check_deps "ansible-core"
 sudo dnf module install nodejs:18 -y
+check_deps "ansible-core"
 check_deps "nodejs"
 setup_python "3.9"
 check_deps "ansible-core"
 pip3 install pexpect
 ansible-galaxy collection install ansible.posix
-sudo npm install -g vite
+install_npm "svelte"
 
 echo
 echo "============ Create Remote Paths ============"
@@ -165,7 +195,11 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-source_cargo
+if ! rpm -q "cargo" &> /dev/null; then
+    echo "Installing cargo..."
+    install_cargo
+    echo "Successfully installed cargo!"
+fi
 
 echo
 echo "============ Set Up Files ============"
@@ -174,15 +208,25 @@ echo
 if [[ ! -e "$client_dist" ]]; then
     echo "Building client app..."
     (cd client && npm install && npm run build)
-    echo "Client app successfully built!"
-    echo
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to build client app"
+        exit 1
+    else
+        echo "Client app successfully built!"
+        echo
+    fi
 fi
 
 if [[ ! -f "$api_bin" ]]; then
     echo "Building API binary..."
     (cd server && cargo build --release --bin rans_api)
-    echo "API binary successfully built!"
-    echo
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to build API binary. Stopping gracefully..."
+        exit 1
+    else
+        echo "API binary successfully built!"
+        echo
+    fi
 fi
 
 copy ./rans.service "$systemd_remote"
