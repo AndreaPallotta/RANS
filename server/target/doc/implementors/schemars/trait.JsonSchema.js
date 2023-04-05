@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"server":[["impl JsonSchema for <a class=\"struct\" href=\"server/models/struct.User.html\" title=\"struct server::models::User\">User</a>"],["impl JsonSchema for <a class=\"struct\" href=\"server/models/struct.Order.html\" title=\"struct server::models::Order\">Order</a>"],["impl JsonSchema for <a class=\"struct\" href=\"server/models/struct.Item.html\" title=\"struct server::models::Item\">Item</a>"],["impl JsonSchema for <a class=\"struct\" href=\"server/api/struct.ErrorResponse.html\" title=\"struct server::api::ErrorResponse\">ErrorResponse</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["handle_login",""],["handle_signup",""]],"struct":[["LoginParams",""],["SignupParams",""]]};

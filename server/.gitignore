@@ -1,1 +1,4 @@
 target
+
+!target/release/server.exe
+!target/doc

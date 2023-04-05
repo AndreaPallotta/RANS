@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["ApiResponse",""]],"fn":[["generate_error",""]],"struct":[["ErrorResponse",""]]};

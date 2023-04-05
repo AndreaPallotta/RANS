@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["add_item",""],["delete_item",""],["edit_item",""],["get_item",""],["get_items",""]],"struct":[["AddItemReq",""],["DeleteItemReq",""],["GetItemReq",""],["UpdateItemReq",""]]};
