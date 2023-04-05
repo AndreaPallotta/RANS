@@ -67,12 +67,15 @@ copy() {
     local src="$1"
     local dest="$2"
 
-    if [[ ! -e "$src" ]]; then
+    if [[ -d "$src" ]]; then
+        sudo cp -r "$src" "$dest"
+    elif [[ -f "$src" ]]; then
+        sudo cp "$src" "$dest"
+    else
         echo "$src does not exist."
         return 1
     fi
 
-    sudo cp -r "$src" "$dest"
     if [[ $? -ne 0 ]]; then
         echo "Copy failed"
         return 1
@@ -146,6 +149,8 @@ cleanup() {
     sudo rm -rf "$client_remote"
     sudo rm -rf "$log_remote"
     sudo rm -rf "$systemd_remote"/rans.service.d
+    sudo rm -rf "$systemd_remote"/rans.api.service.d
+    sudo rm -rf "$bin_remote"/server
 }
 
 # Variables
@@ -159,7 +164,7 @@ client_remote="/var/www/rans/public"
 rans_remote="/etc/rans"
 bin_remote="/usr/bin"
 systemd_remote="/etc/systemd/system"
-nginx="/etc/nginx/"
+nginx="/etc/nginx"
 log_remote="/var/log/rans"
 
 # Start of script
@@ -242,7 +247,6 @@ copy "$client_dist"/. "$client_remote"
 copy "$api_bin" "$bin_remote"
 
 sudo touch /var/run/rans.pid
-sudo touch /var/run/rans.api.pid
 
 sudo chown root:systemd-journal "$systemd_remote"/rans.service.d/rans.api.service
 sudo chown root:systemd-journal "$systemd_remote"/rans.service
@@ -254,7 +258,8 @@ sudo chmod 644 /var/run/rans.pid
 sudo chmod 744 "$bin_remote"/server
 sudo semanage fcontext -a -t bin_t "$bin_remote"/server
 sudo restorecon -v "$bin_remote"/server
-
+sudo chcon -Rt httpd_sys_content_t /var/www/
+sudo setsebool httpd_can_network_connect on -P
 
 echo
 

@@ -129,7 +129,7 @@
         $authStore = response.data.content as IUser;
         $notifStore.open('Successfully signed up', 'success');
 
-        navigate('/home');
+        navigate('/');
     };
 
     onMount(() => {

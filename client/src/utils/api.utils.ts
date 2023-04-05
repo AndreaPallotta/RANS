@@ -11,7 +11,7 @@ interface AxiosResponse<T> {
     error?: string;
 }
 
-const baseURL = import.meta.env.DEV ? 'http://localhost:3000' : 'ransapi.iste444.com';
+const baseURL = 'http://localhost';
 
 export const client = axios.create({
     baseURL,
