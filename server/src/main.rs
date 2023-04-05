@@ -6,7 +6,7 @@ use server::requests::routes::create_routes;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    let parse_config = Config::from("/etc/rans/config.toml");
+    let parse_config = Config::parse("/etc/rans/config.toml");
 
     let config = match parse_config {
         Ok(config) => config,
@@ -20,7 +20,7 @@ async fn main() {
 
     let app: Router = create_routes(db, config.log.path.as_str()).await;
 
-    let addr: SocketAddr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    let addr: SocketAddr = SocketAddr::from(config.server.socket_addr());
     tracing::info!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())

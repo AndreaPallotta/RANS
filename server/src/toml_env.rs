@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{error::Error, net::{Ipv4Addr, SocketAddr, IpAddr}};
 use log::LevelFilter;
 use serde::{Deserialize, Deserializer};
 
@@ -8,10 +8,12 @@ pub struct Config {
     pub db: DatabaseConfig,
     #[serde(rename = "Logs")]
     pub log: LogConfig,
+    #[serde(rename = "Server")]
+    pub server: ServerConfig,
 }
 
 impl Config {
-    pub fn from(path: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn parse(path: &str) -> Result<Self, Box<dyn Error>> {
         let contents = std::fs::read_to_string(path)?;
         let config: Self = toml::from_str(&contents)?;
 
@@ -55,4 +57,26 @@ where D: Deserializer<'de> {
     };
 
     Ok(level)
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ServerConfig {
+    #[serde(deserialize_with = "deserialize_host")]
+    pub host: IpAddr,
+    pub port: u16,
+}
+
+impl ServerConfig {
+    pub fn socket_addr(&self) -> SocketAddr {
+        SocketAddr::new(self.host, self.port)
+    }
+}
+
+fn deserialize_host<'de, D>(deserializer: D) -> Result<IpAddr, D::Error>
+where D: Deserializer<'de> {
+    let host = String::deserialize(deserializer)?;
+    match host.parse() {
+        Ok(ip) => Ok(ip),
+        Err(_) => Ok(Ipv4Addr::new(0, 0, 0, 0).into()),
+    }
 }

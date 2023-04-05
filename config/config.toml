@@ -5,6 +5,10 @@ name = "project2"
 username = "root"
 password = "root"
 
+[Server]
+host = "0.0.0.0" # If invalid, it will default to 0.0.0.0
+port = 3000
+
 [Logs]
 path = "/var/log/rans"
 level = "info" # off | debug | trace | info | warn | error
