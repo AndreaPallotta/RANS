@@ -2,7 +2,7 @@
 Description=Rust API Service for the RANS Stack
 
 [Service]
-Type=simple
+Type=exec
 
 ExecStart=/usr/bin/server
 ExecReload=/usr/bin/pkill -HUP -f $MAINPID

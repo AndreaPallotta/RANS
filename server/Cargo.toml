@@ -1,7 +1,12 @@
 [package]
+authors = ["Andrea Pallotta <andreapallotta.dev@gmail.com>"]
+description = "Secure REST API written in Rust & Axum"
 name = "server"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
+homepage = "https://github.com/AndreaPallotta/RANS"
+reposiory = "https://github.com/AndreaPallotta/RANS"
+keywords = ["rest", "api", "secure"]
 publish = false
 
 [dependencies]
@@ -18,6 +23,8 @@ chrono = { version = "0.4.23", features = ["serde"] }
 log = "0.4.17"
 toml = "0.7.3"
 bcrypt = "0.14.0"
+jsonwebtoken = "1.2.0"
+once_cell = "1.17.1"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 openssl = { version = "0.10", features = ["vendored"] }
