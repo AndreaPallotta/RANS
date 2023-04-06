@@ -64,6 +64,7 @@ pub struct ServerConfig {
     #[serde(deserialize_with = "deserialize_host")]
     pub host: IpAddr,
     pub port: u16,
+    pub secret: String,
 }
 
 impl ServerConfig {
