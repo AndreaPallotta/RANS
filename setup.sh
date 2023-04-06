@@ -194,9 +194,10 @@ create_path "$log_remote" true
 
 sudo chown -R $USER:$USER "$log_remote"
 sudo chmod u+w "$log_remote"
+sudo chmod a+x ./db_setup.sh
 
 echo
-echo "============ Run Ansible Playbook ============"
+echo "============ Run Ansible Playbook & Set Up Database ============"
 echo
 
 ansible-playbook "$ansible_playbook" --ask-become-pass
@@ -210,6 +211,8 @@ if ! rpm -q "cargo" &> /dev/null; then
     install_cargo
     echo "Successfully installed cargo!"
 fi
+
+sudo chmod a+x ./db_setup.sh && ./db_setup.js
 
 echo
 echo "============ Set Up Files ============"

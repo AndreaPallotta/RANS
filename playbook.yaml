@@ -129,18 +129,6 @@
       tags:
         - arangodb
 
-    - name: Create Database
-      command: arangosh --server.database _system --server.password="{{ arangodb_root_password }}" --javascript.execute-string "var db = require('internal').db; db._createDatabase('{{ arangodb_database_name }}')"
-      ignore_errors: true
-      tags:
-        - arangodb
-
-    - name: Create Tables
-      command: arangosh --server.database _system --server.password="{{ arangodb_root_password }}" --javascript.execute-string "var db = require('internal').db; db._useDatabase('{{ arangodb_database_name }}'); db._create('Item'); db._create('User')"
-      ignore_errors: true
-      tags:
-        - arangodb
-
     - set_fact:
         package_list: "{{ rust_dependencies.results | selectattr('stdout', 'search', 'not installed') | map(attribute='item') | list }}"
     - name: Install Rust Dependencies
