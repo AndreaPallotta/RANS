@@ -6,8 +6,8 @@ use server::requests::routes::create_routes;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    // let parse_config = Config::parse("/etc/rans/config.toml");
-    let parse_config = Config::parse("../config/config.local.toml");
+    let parse_config = Config::parse("/etc/rans/config.toml");
+    // let parse_config = Config::parse("../config/config.local.toml");
 
     let config = match parse_config {
         Ok(config) => config,
@@ -26,7 +26,7 @@ async fn main() {
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
-        .unwrap();
+        .expect("Server failed to start");
 }
 
 async fn get_db(config: DatabaseConfig) -> Database {
