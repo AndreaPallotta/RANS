@@ -142,20 +142,19 @@ cleanup() {
     local exit_status=$?
     if [ $exit_status -ne 0 ]; then
         echo "An error occurred while building the client app. Exit status: $exit_status"
+        sudo dnf remove nginx arangodb3 -y
+        sudo rm -rf "$rans_remote"
+        sudo rm -rf "$client_remote"
+        sudo rm -rf "$log_remote"
+        sudo rm -rf "$systemd_remote"/rans.service.d
+        sudo rm -rf "$systemd_remote"/rans.api.service.d
+        sudo rm -rf "$bin_remote"/server
     fi
-
-    sudo dnf remove nginx arangodb3 -y
-    sudo rm -rf "$rans_remote"
-    sudo rm -rf "$client_remote"
-    sudo rm -rf "$log_remote"
-    sudo rm -rf "$systemd_remote"/rans.service.d
-    sudo rm -rf "$systemd_remote"/rans.api.service.d
-    sudo rm -rf "$bin_remote"/server
 }
 
 # Variables
 client_dist="./client/dist"
-nginx_configs="./config"
+configs_local="./config"
 api_bin="./server/target/release/server"
 ansible_playbook="./playbook.yaml"
 services="./rans.service.d"
@@ -166,6 +165,7 @@ bin_remote="/usr/bin"
 systemd_remote="/etc/systemd/system"
 nginx="/etc/nginx"
 log_remote="/var/log/rans"
+net_remote="/etc/sysconfig/network-scripts"
 
 # Start of script
 
@@ -244,20 +244,17 @@ fi
 
 copy ./rans.service "$systemd_remote"
 copy "$services" "$systemd_remote"
-copy "$nginx_configs/nginx.conf" "$nginx"
-copy "$nginx_configs/config.toml" "$rans_remote"
+copy "$configs_local"/nginx.conf "$nginx"
+copy "$configs_local"/config.toml "$rans_remote"
+copy "$configs_local"/ifcfg-ens192 "$net_remote"
 copy "$client_dist"/. "$client_remote"
 copy "$api_bin" "$bin_remote"
 
-sudo touch /var/run/rans.pid
-
 sudo chown root:systemd-journal "$systemd_remote"/rans.service.d/rans.api.service
 sudo chown root:systemd-journal "$systemd_remote"/rans.service
-sudo chown root:systemd-journal /var/run/rans.pid
 sudo chown root:systemd-journal "$bin_remote"/server
 sudo chmod 644 "$systemd_remote"/rans.service.d/rans.api.service
 sudo chmod 644 "$systemd_remote"/rans.service
-sudo chmod 644 /var/run/rans.pid
 sudo chmod 744 "$bin_remote"/server
 sudo semanage fcontext -a -t bin_t "$bin_remote"/server
 sudo restorecon -v "$bin_remote"/server
@@ -270,7 +267,10 @@ create_symlink "$systemd_remote/rans.service.d/rans.api.service" "$systemd_remot
 
 echo
 
+
+
 sudo systemctl daemon-reload
+sudo systemctl restart NetworkManager
 sudo systemctl start nginx.service arangodb.service rans.api.service
 
 echo
