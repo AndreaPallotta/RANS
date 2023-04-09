@@ -2,6 +2,27 @@
 
 var db = require('internal').db;
 
+const createIndex = ({ collection, type, unique, sparse, field }) => {
+  var indexExists = db[collection]
+    .getIndexes()
+    .some(
+      (index) =>
+        index.type === type &&
+        index.unique === unique &&
+        index.sparse === sparse &&
+        index.fields.includes(field)
+    );
+
+  if (indexExists) {
+    db[collection].ensureIndex({
+      type,
+      unique,
+      sparse,
+      fields: [field],
+    });
+  }
+}
+
 var dbs = db._databases();
 
 if (!dbs.includes('project2')) {
@@ -24,19 +45,5 @@ collectionsToCreate.forEach((name) => {
   }
 });
 
-var emailIndexExists = db.User.getIndexes().some(
-  (index) =>
-    index.type === 'persistent' &&
-    index.unique === true &&
-    index.sparse === false &&
-    index.fields.includes('email')
-);
-
-if (!emailIndexExists) {
-  db.User.ensureIndex({
-    type: 'persistent',
-    unique: true,
-    sparse: false,
-    fields: ['email'],
-  });
-}
+createIndex('User', 'persistent', true, false, 'email');
+createIndex('Item', 'persistent', true, false, 'name');

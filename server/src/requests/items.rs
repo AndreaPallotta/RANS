@@ -86,7 +86,7 @@ pub async fn add_item(Extension(database): Extension<Database>, Json(payload): J
     let quantity: i64 = payload.quantity;
 
     let mut bind_vars: HashMap<&str, Value> = HashMap::new();
-    bind_vars.insert("name", Value::String(name));
+    bind_vars.insert("name", Value::String(name.clone()));
     bind_vars.insert("description", Value::String(description));
     bind_vars.insert("price", Value::Number(Number::from_f64(price).unwrap()));
     bind_vars.insert("quantity", Value::Number(Number::from(quantity)));
@@ -113,7 +113,8 @@ pub async fn add_item(Extension(database): Extension<Database>, Json(payload): J
             }
         }
         Err(e) => {
-            (StatusCode::INTERNAL_SERVER_ERROR, generate_error(format!("Error creating item: {}", e.to_string()).as_str()))
+            eprintln!("{:?}", e.to_string());
+            (StatusCode::BAD_REQUEST, generate_error(format!("Error creating item: Name {} already used", name).as_str()))
         }
     }
 }
@@ -123,7 +124,9 @@ pub async fn edit_item(Extension(database): Extension<Database>, Json(payload): 
     let name = payload.name;
     let description = payload.description;
     let price = payload.price;
+    println!("price: {:?}", price);
     let quantity = payload.quantity;
+    println!("quantity: {:?}", quantity);
 
     let params = ItemUpdate {
         name,
@@ -142,11 +145,12 @@ pub async fn edit_item(Extension(database): Extension<Database>, Json(payload): 
             if let Some(item) = response.new_doc() {
                 (StatusCode::OK, Json(ApiResponse::Success(item.clone())))
             } else {
-                (StatusCode::INTERNAL_SERVER_ERROR, generate_error("Error creating item"))
+                (StatusCode::INTERNAL_SERVER_ERROR, generate_error("Error updating item"))
             }
         },
         Err(e) => {
-            (StatusCode::INTERNAL_SERVER_ERROR, generate_error(format!("Error updating item: {}", e.to_string()).as_str()))
+            eprintln!("Error updating item: {}", e.to_string());
+            (StatusCode::NOT_FOUND, generate_error(format!("Error updating item: id {} not found", id).as_str()))
         }
     }
 
@@ -162,7 +166,7 @@ pub async fn delete_item(Extension(database): Extension<Database>, Json(payload)
                 let item: &Item = old_doc;
                 (StatusCode::OK, Json(ApiResponse::Success(json!({ "name": item.name }))))
             } else {
-                (StatusCode::INTERNAL_SERVER_ERROR, generate_error("Item to delete not found"))
+                (StatusCode::NOT_FOUND, generate_error("Item to delete not found"))
             }
         }
         Err(e) => {

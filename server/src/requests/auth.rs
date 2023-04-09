@@ -32,7 +32,7 @@ pub async fn handle_login(Extension(database): Extension<Database>, Json(payload
     let users: Vec<User> = database.arango_db.aql_bind_vars("FOR user IN User FILTER user.email == @email RETURN user", bind_vars).await.unwrap();
 
     if users.is_empty() {
-        (StatusCode::NOT_FOUND, generate_error("User not found"))
+        (StatusCode::BAD_REQUEST, generate_error("Email and/or password are wrong"))
     } else {
         let user = &users[0];
 
@@ -54,8 +54,6 @@ pub async fn handle_signup(Extension(database): Extension<Database>, Json(payloa
         Ok(h) => h,
         Err(err) => return (StatusCode::INTERNAL_SERVER_ERROR, generate_error(format!("Error hashing password: {:?}", {err}).as_str())),
     };
-
-    println!("{}", hashed_password);
 
     let query =
     "
@@ -86,7 +84,7 @@ pub async fn handle_signup(Extension(database): Extension<Database>, Json(payloa
         },
         Err(err) => {
             eprintln!("Error creating user: {:?}", err);
-            (StatusCode::INTERNAL_SERVER_ERROR, generate_error("Email is already associated with another user"))
+            (StatusCode::BAD_REQUEST, generate_error("Email is already associated with another user"))
         }
     }
 }

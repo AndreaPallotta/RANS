@@ -5,7 +5,7 @@ name = "server"
 version = "1.0.0"
 edition = "2021"
 homepage = "https://github.com/AndreaPallotta/RANS"
-reposiory = "https://github.com/AndreaPallotta/RANS"
+repository = "https://github.com/AndreaPallotta/RANS"
 keywords = ["rest", "api", "secure"]
 publish = false
 

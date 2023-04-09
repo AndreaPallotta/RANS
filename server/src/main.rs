@@ -6,8 +6,8 @@ use server::requests::routes::create_routes;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    let parse_config = Config::parse("/etc/rans/config.toml");
-    // let parse_config = Config::parse("../config/config.local.toml");
+    // let parse_config = Config::parse("/etc/rans/config.toml");
+    let parse_config = Config::parse("../config/config.local.toml");
 
     let config = match parse_config {
         Ok(config) => config,
