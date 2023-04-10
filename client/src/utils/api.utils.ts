@@ -108,8 +108,6 @@ const refresh = async () => {
 
     const response = await axiosGet<AuthRes, unknown>(`/api/auth/refresh/${email}`);
 
-    console.log(response);
-
     if (!response.data.content || response.error) {
         clearState();
     }

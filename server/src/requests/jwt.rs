@@ -95,7 +95,6 @@ pub async fn jwt_middleware<B>(req: Request<B>, next: Next<B>) -> Result<Respons
         Some(tok) => {
             match validate_jwt(&tok.to_string(), &secret) {
                 Ok(_) => {
-                    println!("VALID!");
                     return Ok(next.run(req).await)
                 },
                 Err(e) => {

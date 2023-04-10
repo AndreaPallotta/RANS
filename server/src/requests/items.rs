@@ -124,9 +124,7 @@ pub async fn edit_item(Extension(database): Extension<Database>, Json(payload): 
     let name = payload.name;
     let description = payload.description;
     let price = payload.price;
-    println!("price: {:?}", price);
     let quantity = payload.quantity;
-    println!("quantity: {:?}", quantity);
 
     let params = ItemUpdate {
         name,
