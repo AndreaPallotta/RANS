@@ -1,4 +1,5 @@
 use axum::Router;
+use server::constants::DEV_CONFIG_PATH;
 use server::toml_env::{Config, DatabaseConfig};
 use std::net::SocketAddr;
 use server::db::{Database, DBConnector};
@@ -6,10 +7,9 @@ use server::requests::routes::create_routes;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    // let parse_config = Config::parse("/etc/rans/config.toml");
-    let parse_config = Config::parse("../config/config.local.toml");
+    let parsed_config = Config::parse(DEV_CONFIG_PATH);
 
-    let config = match parse_config {
+    let config = match parsed_config {
         Ok(config) => config,
         Err(err) => {
             eprintln!("Error reading config file: {:?}", err);
@@ -19,7 +19,7 @@ async fn main() {
 
     let db: Database = get_db(config.db).await;
 
-    let app: Router = create_routes(db, config.log.path.as_str()).await;
+    let app: Router = create_routes(db, config.log.path.as_str(), &config.server).await;
 
     let addr: SocketAddr = SocketAddr::from(config.server.socket_addr());
     tracing::info!("listening on {}", addr);
@@ -39,6 +39,6 @@ async fn get_db(config: DatabaseConfig) -> Database {
 
     match Database::new(connector).await {
         Ok(db) => db,
-        Err(e) => panic!("Failed to connect to database: {:?}", e),
+        Err(e) => panic!("{:?}", e),
     }
 }

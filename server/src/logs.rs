@@ -3,6 +3,8 @@ use std::{fs, path::PathBuf};
 use chrono::Utc;
 use std::io::Write;
 
+use crate::constants::{INFO_LOG_FILE, ERROR_LOG_FILE, LOG_TS_FORMAT};
+
 struct Logger {
     info_file: fs::File,
     error_file: fs::File,
@@ -16,10 +18,8 @@ impl Logger {
         let mut info_log = log_dir_path.clone();
         let mut error_log = log_dir_path.clone();
 
-        let timestamp = Utc::now().format("%Y-%m-%d").to_string();
-
-        info_log.push(format!("info-{}.log", timestamp));
-        error_log.push(format!("error-{}.log", timestamp));
+        info_log.push(INFO_LOG_FILE);
+        error_log.push(ERROR_LOG_FILE);
 
         Self {
             info_file: create_new_file(&info_log),
@@ -37,7 +37,7 @@ impl Log for Logger {
 
     fn log(&self, record: &Record) {
         if self.enabled(record.metadata()) {
-            let timestamp = Utc::now().format("%Y-%m-%dT%H:%M:%S").to_string();
+            let timestamp = Utc::now().format(LOG_TS_FORMAT).to_string();
             let message = format!("{} - {} - {}", timestamp, record.level(), record.args());
             let mut file = match record.level() {
                 Level::Error => &self.error_file,
@@ -45,7 +45,7 @@ impl Log for Logger {
             };
 
             if let Err(err) = writeln!(file, "{}", message) {
-                eprintln!("error writing to log file: {}", err);
+                eprintln!("Error writing to log file: {}", err);
             }
         }
     }
@@ -69,7 +69,7 @@ fn create_new_file(name: &PathBuf) -> fs::File {
 fn create_folder_path(path: &PathBuf) {
     if !path.exists() {
         if let Err(e) = fs::create_dir_all(path) {
-            eprintln!("failed to create directory {}: {}", path.display(), e);
+            eprintln!("Failed to create directory {}: {}", path.display(), e);
         }
     }
 }

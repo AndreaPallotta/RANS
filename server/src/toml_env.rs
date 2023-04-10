@@ -1,6 +1,7 @@
 use std::{error::Error, net::{Ipv4Addr, SocketAddr, IpAddr}};
 use log::LevelFilter;
 use serde::{Deserialize, Deserializer};
+use tower_http::cors::AllowOrigin;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
@@ -61,15 +62,31 @@ where D: Deserializer<'de> {
 
 #[derive(Debug, Deserialize)]
 pub struct ServerConfig {
+    #[serde(deserialize_with = "deserialize_env")]
+    pub env: Environment,
     #[serde(deserialize_with = "deserialize_host")]
     pub host: IpAddr,
     pub port: u16,
     pub secret: String,
+    pub origins: Option<Vec<String>>,
 }
 
 impl ServerConfig {
     pub fn socket_addr(&self) -> SocketAddr {
         SocketAddr::new(self.host, self.port)
+    }
+
+    pub fn allow_origins(&self) -> Option<AllowOrigin> {
+        let mut origins = Vec::new();
+        match self.origins.as_ref() {
+            Some(values) => {
+                for value in values {
+                    origins.push(value.parse().unwrap())
+                }
+                return Some(AllowOrigin::list(origins));
+            },
+            None => None
+        }
     }
 }
 
@@ -80,4 +97,24 @@ where D: Deserializer<'de> {
         Ok(ip) => Ok(ip),
         Err(_) => Ok(Ipv4Addr::new(0, 0, 0, 0).into()),
     }
+}
+
+fn deserialize_env<'de, D>(deserializer: D) -> Result<Environment, D::Error>
+where D: Deserializer<'de> {
+    let env_string = String::deserialize(deserializer)?;
+
+    let env = match env_string.to_lowercase().as_str() {
+        "development" => Environment::DEV,
+        "production" => Environment::PROD,
+        _ => Environment::DEV,
+    };
+
+    Ok(env)
+}
+
+
+#[derive(Debug, Deserialize, PartialEq)]
+pub enum Environment {
+    DEV,
+    PROD,
 }

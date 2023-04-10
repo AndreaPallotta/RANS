@@ -14,7 +14,14 @@ pub struct DBConnector {
 
 impl Database {
     pub async fn new(connector: DBConnector) -> Result<Self, arangors::error::ArangoError> {
-        let arango_conn: GenericConnection<SurfClient> = Connection::establish_basic_auth(&connector.db_url, &connector.db_username, &connector.db_password).await.unwrap();
+        let arango_conn: GenericConnection<SurfClient> = Connection::establish_basic_auth(
+            &connector.db_url,
+            &connector.db_username,
+            &connector.db_password
+        )
+        .await
+        .expect("===== Failed to connect to database =====");
+
         let arango_db: ArangoDatabase<SurfClient> = arango_conn.db(&connector.db_name).await.unwrap();
         Ok(Database { arango_db })
     }

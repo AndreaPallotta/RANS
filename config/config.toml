@@ -1,14 +1,16 @@
 [Database]
-host = "http://localhost"
+host = "http://0.0.0.0"
 port = 8529
 name = "project2"
 username = "root"
 password = "root"
 
 [Server]
+env = "production" # development | production. If the value is wrong or missing, default to 'development'
 host = "0.0.0.0" # If invalid, it will default to 0.0.0.0
 port = 3000
 secret = "Super Secret" # JWT to generate tokens
+origins = ["http://rans.iste444.com"] # Array of IPs/Domains allowed to make requests. Remove to accept all origins
 
 [Logs]
 path = "/var/log/rans"

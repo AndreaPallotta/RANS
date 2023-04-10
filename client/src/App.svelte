@@ -8,14 +8,15 @@
   import Home from "./pages/Home.svelte";
   import Login from "./pages/Login.svelte";
   import Signup from "./pages/Signup.svelte";
-  import authStore from "./store/auth.store";
+  import authStore, { jwtStore } from "./store/auth.store";
   import type { IUser } from "./types/models";
 
   let topAppBar: TopAppBar;
 
-  // onMount(() => {
-  //   $authStore = JSON.parse(localStorage.getItem("auth")) as IUser;
-  // });
+  onMount(() => {
+    $authStore = JSON.parse(localStorage.getItem("user")) as IUser;
+    $jwtStore = localStorage.getItem("jwt");
+  });
 </script>
 
 <Router>

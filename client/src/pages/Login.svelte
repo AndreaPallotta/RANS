@@ -68,10 +68,11 @@
     import { onMount } from 'svelte';
     import { Link, useNavigate } from 'svelte-navigator';
     import type { ISignIn } from '../store/auth.store';
-    import authStore from '../store/auth.store';
+    import authStore, { jwtStore } from '../store/auth.store';
     import notifStore from '../store/notification.store';
     import type { IUser } from '../types/models';
     import { axiosPost } from '../utils/api.utils';
+  import type { AuthRes } from '../types/ifaces';
 
     const signIn: ISignIn = {
         email: "",
@@ -91,18 +92,20 @@
     };
 
     const handleLogin = async () => {
-        const response = await axiosPost<IUser, ISignIn>("/api/auth/login", signIn);
+        const response = await axiosPost<AuthRes, ISignIn>("/api/auth/login", signIn);
 
         if (response.error || !response.data) {
             $notifStore.open(response.error ?? 'Error Logging in', 'error');
             return;
         }
 
-        $authStore = response.data.content as IUser;
+        $authStore = response.data.content.user;
+        $jwtStore = response.data.content.token;
         $notifStore.open('Successfully logged in', 'success');
 
         try {
-            localStorage.setItem("auth", JSON.stringify($authStore));
+            localStorage.setItem("user", JSON.stringify($authStore));
+            localStorage.setItem("jwt", $jwtStore);
         } catch (err) {
             $notifStore.open(`Error saving auth in local storage: ${err.message}`, 'error');
         }

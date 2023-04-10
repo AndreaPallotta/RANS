@@ -1,17 +1,31 @@
 use std::collections::HashMap;
 use axum::Extension;
 use axum::{http::StatusCode, Json};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use bcrypt::{hash, DEFAULT_COST, verify};
 use crate::db::Database;
 use crate::models::User;
 use crate::api::{ApiResponse, generate_error};
 
+use super::jwt::generate_jwt;
+
 #[derive(Deserialize)]
 pub struct LoginParams {
     email: String,
     password: String,
+}
+
+#[derive(Serialize)]
+pub struct AuthRes {
+    user: User,
+    token: String,
+}
+
+impl AuthRes {
+    pub fn new(user: User, token: String) -> Self {
+        Self { user, token }
+    }
 }
 
 #[derive(Deserialize)]
@@ -22,7 +36,7 @@ pub struct SignupParams {
     password: String,
 }
 
-pub async fn handle_login(Extension(database): Extension<Database>, Json(payload): Json<LoginParams>) -> (StatusCode, Json<ApiResponse<User>>) {
+pub async fn handle_login(Extension(database): Extension<Database>, Extension(secret): Extension<String>, Json(payload): Json<LoginParams>) -> (StatusCode, Json<ApiResponse<AuthRes>>) {
     let email: String = payload.email;
     let password: String = payload.password;
 
@@ -34,17 +48,18 @@ pub async fn handle_login(Extension(database): Extension<Database>, Json(payload
     if users.is_empty() {
         (StatusCode::BAD_REQUEST, generate_error("Email and/or password are wrong"))
     } else {
-        let user = &users[0];
+        let user = users[0].clone();
 
         if verify(password, &user.password).unwrap_or(false) {
-            (StatusCode::OK, Json(ApiResponse::Success(user.clone())))
+            let token = generate_jwt(&email, &secret).unwrap();
+            (StatusCode::OK, Json(ApiResponse::Success( AuthRes::new(user, token))))
         } else {
             (StatusCode::BAD_REQUEST, generate_error("Email and/or password are wrong"))
         }
     }
 }
 
-pub async fn handle_signup(Extension(database): Extension<Database>, Json(payload): Json<SignupParams>) -> (StatusCode, Json<ApiResponse<User>>) {
+pub async fn handle_signup(Extension(database): Extension<Database>, Extension(secret): Extension<String>, Json(payload): Json<SignupParams>) -> (StatusCode, Json<ApiResponse<AuthRes>>) {
     let first_name: String = payload.first_name;
     let last_name: String = payload.last_name;
     let email: String = payload.email;
@@ -69,7 +84,7 @@ pub async fn handle_signup(Extension(database): Extension<Database>, Json(payloa
     let mut bind_vars = HashMap::new();
     bind_vars.insert("first_name", first_name.into());
     bind_vars.insert("last_name", last_name.into());
-    bind_vars.insert("email", email.into());
+    bind_vars.insert("email", email.clone().into());
     bind_vars.insert("hashed_password", hashed_password.into());
 
     let result = database.arango_db.aql_bind_vars(query, bind_vars).await;
@@ -77,7 +92,8 @@ pub async fn handle_signup(Extension(database): Extension<Database>, Json(payloa
     match result {
         Ok(mut users) => {
             if let Some(user) = users.pop() {
-                (StatusCode::OK, Json(ApiResponse::Success(user)))
+                let token = generate_jwt(&email, &secret).unwrap();
+                (StatusCode::OK, Json(ApiResponse::Success(AuthRes { user, token })))
             } else {
                 (StatusCode::INTERNAL_SERVER_ERROR, generate_error("Error creating user"))
             }

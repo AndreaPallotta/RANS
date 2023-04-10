@@ -14,5 +14,6 @@ export interface ISignUp {
 }
 
 const authStore = writable<IUser>(null);
+export const jwtStore = writable<string>(null);
 
 export default authStore;

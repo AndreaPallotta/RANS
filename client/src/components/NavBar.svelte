@@ -14,12 +14,12 @@
   export let topAppBar: TopAppBar;
 
   onMount(() => {
-    $authStore = JSON.parse(localStorage.getItem("auth")) as IUser;
+    $authStore = JSON.parse(localStorage.getItem("user")) as IUser;
   });
 
   const handleLogout = () => {
     $authStore = null;
-    localStorage.removeItem("auth");
+    localStorage.removeItem("user");
   };
 </script>
 

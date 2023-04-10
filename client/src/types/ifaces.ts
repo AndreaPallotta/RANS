@@ -1,4 +1,9 @@
-import type { Item } from "./models";
+import type { IUser, Item } from "./models";
+
+export interface AuthRes {
+    user: IUser;
+    token: string;
+}
 
 export interface DeleteItemReq {
     id: string;
