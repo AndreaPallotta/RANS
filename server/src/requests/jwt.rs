@@ -78,6 +78,10 @@ pub async fn jwt_middleware<B>(req: Request<B>, next: Next<B>) -> Result<Respons
         }
     };
 
+    if parsed_config.server.env.is_dev() {
+        return Ok(next.run(req).await)
+    }
+
     let secret = parsed_config.server.secret;
 
     let auth_header = req.headers()

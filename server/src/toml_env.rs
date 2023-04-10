@@ -118,3 +118,21 @@ pub enum Environment {
     DEV,
     PROD,
 }
+
+impl Environment {
+    pub fn is_dev(&self) -> bool {
+        return self == &Environment::DEV;
+    }
+
+    pub fn is_prod(&self) -> bool {
+        return self == &Environment::PROD;
+    }
+
+    pub fn is_equal(&self, compare_with: &Environment) -> bool {
+        return self == compare_with;
+    }
+
+    pub fn compare(env: &Environment, compare_with: &Environment) -> bool {
+        return env == compare_with;
+    }
+}
