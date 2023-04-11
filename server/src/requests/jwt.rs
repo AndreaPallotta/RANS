@@ -20,7 +20,7 @@ pub fn generate_jwt(sub: &String, secret: &String) -> Result<String, jsonwebtoke
     let claims = Claims {
         sub: sub.to_string(),
         iat: chrono::Utc::now().timestamp() as usize,
-        exp: (chrono::Utc::now() + chrono::Duration::hours(24)).timestamp() as usize,
+        exp: (chrono::Utc::now() + chrono::Duration::minutes(15)).timestamp() as usize,
     };
     encode(&header, &claims, &EncodingKey::from_secret(secret.as_ref()))
 }
