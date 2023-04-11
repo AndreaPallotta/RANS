@@ -1,7 +1,3 @@
-<!-- <div class="card-container">
-    <Card padded>A simple padded card.</Card>
-</div> -->
-
 <div class="card-display">
   <div class="card-container">
     <Card>
@@ -55,7 +51,7 @@
   const dispatch = createEventDispatcher();
 
   const handleDelete = () => {
-    dispatch("delete", item._key);
+    dispatch("delete", item);
   }
 
   const handleEdit = () => {

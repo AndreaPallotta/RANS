@@ -1,6 +1,7 @@
 <script lang="ts">
   import LayoutGrid, { Cell } from '@smui/layout-grid';
   import { onMount } from 'svelte';
+  import ConfirmationModal from '../components/ConfirmationModal.svelte';
   import ItemCard from "../components/ItemCard.svelte";
   import ItemModal from '../components/ItemModal.svelte';
   import SearchBar from '../components/SearchBar.svelte';
@@ -12,7 +13,8 @@
   import { objectDifference } from '../utils/utils';
 
   let open = false;
-  let itemToEdit = null;
+  let confirmOpen = false;
+  let selectedItem: Item = null;
 
   const getItems = async () => {
     const response = await axiosGet<Item[], unknown>('/api/get_items');
@@ -36,11 +38,10 @@
     $itemsStore = response.data.content;
   };
 
-  const deleteItem = async (e: CustomEvent<string>) => {
-    const response = await axiosDelete<DeleteItemRes, DeleteItemReq>('/api/delete_item', { id: e.detail });
-
+  const deleteItem = async () => {
+    const response = await axiosDelete<DeleteItemRes, DeleteItemReq>('/api/delete_item', { id: selectedItem._key });
     if (response.error || !response.data) {
-        $notifStore.open(response.error ?? `Error deleting for ${e.detail}`, 'error');
+        $notifStore.open(response.error ?? `Error deleting for ${selectedItem}`, 'error');
         return;
     }
 
@@ -49,7 +50,7 @@
   };
 
   const saveEditedItem = async (e: CustomEvent<Item>) => {
-    const body = objectDifference<UpdateItemReq, Item>(itemToEdit, e.detail, { id: itemToEdit._key });
+    const body = objectDifference<UpdateItemReq, Item>(selectedItem, e.detail, { id: selectedItem._key });
 
     const response = await axiosPut<Item, UpdateItemReq>('/api/edit_item', body);
 
@@ -59,7 +60,7 @@
     }
 
     await getItems();
-    $notifStore.open(`Successfully updated "${itemToEdit.name}"`, 'success');
+    $notifStore.open(`Successfully updated "${selectedItem.name}"`, 'success');
     closeModal();
   };
 
@@ -79,13 +80,23 @@
 
   const openModal = (e: CustomEvent<Item>) => {
     open = true;
-    itemToEdit = e.detail;
+    selectedItem = e.detail;
   };
 
   const closeModal = () => {
     open = false;
-    itemToEdit = null;
+    selectedItem = null;
   };
+
+  const openConfirmModal = (e: CustomEvent<Item>) => {
+    confirmOpen = true;
+    selectedItem = e.detail;
+  }
+
+  const closeConfirmModal = () => {
+    confirmOpen = false;
+    selectedItem = null;
+  }
 
   onMount(() => {
     getItems();
@@ -98,10 +109,24 @@
     <LayoutGrid>
     {#each $itemsStore as item}
         <Cell>
-            <ItemCard {item} on:delete={deleteItem} on:edit={openModal} />
+            <ItemCard {item} on:delete={openConfirmModal} on:edit={openModal} />
         </Cell>
     {/each}
     </LayoutGrid>
 
-    <ItemModal {itemToEdit} {open} on:close={closeModal} on:update={saveEditedItem} on:add={addNewItem} />
+    {#if open}
+      <ItemModal itemToEdit={selectedItem} {open} on:close={closeModal} on:update={saveEditedItem} on:add={addNewItem} />
+    {/if}
+
+    {#if selectedItem && confirmOpen}
+      <ConfirmationModal
+        open={confirmOpen}
+        title="Confirm Delete"
+        description={`Are you sure you want to delete '${selectedItem.name}'`}
+        confirmEventName="confirm_delete"
+        {selectedItem}
+        on:cancel={closeConfirmModal}
+        on:confirm_delete={deleteItem}
+      />
+    {/if}
 </div>

@@ -1,7 +1,6 @@
 <Dialog
   bind:open
-  on:close={handleClose}
-  on:keydown={handleKeyDown}
+  on:SMUIDialog:closed={handleClose}
   aria-labelledby="edit-modal-title"
   aria-describedby="edit-modal-content"
   surface$style="width: 850px; max-width: calc(100vw - 32px);"
@@ -64,7 +63,7 @@
   import type { Item } from '../types/models';
 
   export let open = false;
-  export let itemToEdit: Item | null;
+  export let itemToEdit: Item;
 
   let isFormModified = false;
   let item: Item | Partial<Item> = {
@@ -85,7 +84,6 @@
       isFormModified = true;
     }
   }
-  $: isModalOpen = open;
   $: isNameValid = item.name.trim().length > 0;
   $: isPriceValid = item.price > 0 && item.price <= 1000000;
   $: isQuantityValid = item.quantity >= 0 && item.price <= 1000000;
@@ -96,15 +94,8 @@
   const dispatch = createEventDispatcher();
 
   const handleClose = () => {
-    open = false;
     dispatch("close");
   };
-
-  const handleKeyDown = (e: any) => {
-    if (e.key === 'Escape' || e.key ===  'Esc') {
-      handleClose();
-    }
-  }
 
   const handleSave = () => {
     dispatch(itemToEdit === null ? "add" : "update", item);
