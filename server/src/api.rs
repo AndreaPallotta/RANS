@@ -1,8 +1,9 @@
 use axum::Json;
 use schemars::JsonSchema;
 use serde::{Serialize, Deserialize};
+use utoipa::ToSchema;
 
-#[derive(Deserialize, Serialize, JsonSchema)]
+#[derive(Deserialize, Serialize, JsonSchema, ToSchema)]
 pub struct ErrorResponse {
     pub error_msg: String,
 }

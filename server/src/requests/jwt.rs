@@ -2,12 +2,13 @@ use std::{collections::HashMap};
 use axum::{extract::Path, Json, http::{StatusCode, Request}, Extension, middleware::Next, response::Response};
 use jsonwebtoken::{Header, EncodingKey, encode, Validation, decode, DecodingKey, errors::{ErrorKind, Error}};
 use serde::{Serialize, Deserialize};
+use utoipa::ToSchema;
 use crate::{api::{ApiResponse, generate_error}, db::Database, models::User, toml_env::Config, constants::DEV_CONFIG_PATH};
 
 use super::auth::AuthRes;
 
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct Claims {
     sub: String,
     iat: usize,
@@ -40,8 +41,18 @@ pub fn validate_jwt(token: &String, secret: &String) -> Result<bool, Error> {
     }
 }
 
+#[utoipa::path(
+    get,
+    path = "/api/auth/refresh",
+    params(
+        ("email" = String, Path, description = "user email")
+    ),
+    responses(
+        (status = 200, description = "Return authenticated user", body = AuthRes),
+        (status = 500, description = "Error generating jwt", body = ErrorResponse)
+    )
+)]
 pub async fn refresh(Extension(database): Extension<Database>, Extension(secret): Extension<String>, Path(email): Path<String>) -> (StatusCode, Json<ApiResponse<AuthRes>>) {
-
     let users: Vec<User> = database.arango_db.aql_bind_vars(
     "FOR user IN User FILTER user.email == @email RETURN user",
     HashMap::from([("email", email.to_owned().into())])
@@ -51,10 +62,10 @@ pub async fn refresh(Extension(database): Extension<Database>, Extension(secret)
 
     let response = token.map(|jwt| {
         users.first().map_or_else(
-            || (StatusCode::INTERNAL_SERVER_ERROR, generate_error("Error generating JWT token: User vector is empty")),
+            || (StatusCode::INTERNAL_SERVER_ERROR, generate_error("Error generating token: no user found")),
             |user| (StatusCode::OK, Json(ApiResponse::Success(AuthRes::new(user.to_owned(), jwt))))
         )
-    }).unwrap_or_else(|e| (StatusCode::INTERNAL_SERVER_ERROR, generate_error(format!("Error generating JWT token: {}", e.to_string()).as_str())));
+    }).unwrap_or_else(|e| (StatusCode::INTERNAL_SERVER_ERROR, generate_error(format!("Error generating token: {}", e.to_string()).as_str())));
 
     response
 }

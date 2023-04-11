@@ -1,8 +1,9 @@
 use schemars::JsonSchema;
 use serde::{Serialize, Deserialize};
 use chrono::NaiveDateTime;
+use utoipa::ToSchema;
 
-#[derive(Deserialize, Serialize, JsonSchema, Debug, Clone)]
+#[derive(Deserialize, Serialize, JsonSchema, Debug, Clone, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub struct User {
     pub _key: String,
@@ -14,7 +15,7 @@ pub struct User {
     pub password: String,
 }
 
-#[derive(Deserialize, Serialize, JsonSchema, Debug, Clone)]
+#[derive(Deserialize, Serialize, JsonSchema, Debug, Clone, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Order {
     pub _key: String,
@@ -26,7 +27,7 @@ pub struct Order {
     pub quantity: i64,
 }
 
-#[derive(Deserialize, Serialize, JsonSchema, Debug, Clone)]
+#[derive(Deserialize, Serialize, JsonSchema, Debug, Clone, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub struct Item {
     pub _key: String,

@@ -4,19 +4,20 @@ use axum::{http::StatusCode, Json};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use bcrypt::{hash, DEFAULT_COST, verify};
+use utoipa::ToSchema;
 use crate::db::Database;
 use crate::models::User;
 use crate::api::{ApiResponse, generate_error};
 
 use super::jwt::generate_jwt;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 pub struct LoginParams {
     email: String,
     password: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct AuthRes {
     user: User,
     token: String,
@@ -28,7 +29,7 @@ impl AuthRes {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 pub struct SignupParams {
     first_name: String,
     last_name: String,
@@ -36,6 +37,15 @@ pub struct SignupParams {
     password: String,
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/auth/login",
+    request_body = LoginParams,
+    responses(
+        (status = 200, description = "Return authenticated user", body = AuthRes),
+        (status = 400, description = "Credentials are wrong", body = ErrorResponse)
+    )
+)]
 pub async fn handle_login(Extension(database): Extension<Database>, Extension(secret): Extension<String>, Json(payload): Json<LoginParams>) -> (StatusCode, Json<ApiResponse<AuthRes>>) {
     let email: String = payload.email;
     let password: String = payload.password;
@@ -59,6 +69,16 @@ pub async fn handle_login(Extension(database): Extension<Database>, Extension(se
     }
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/auth/signup",
+    request_body = SignupParams,
+    responses(
+        (status = 200, description = "Return authenticated user", body = AuthRes),
+        (status = 400, description = "Credentials are wrong", body = ErrorResponse),
+        (status = 500, description = "Error during query/hashing", body = ErrorResponse)
+    )
+)]
 pub async fn handle_signup(Extension(database): Extension<Database>, Extension(secret): Extension<String>, Json(payload): Json<SignupParams>) -> (StatusCode, Json<ApiResponse<AuthRes>>) {
     let first_name: String = payload.first_name;
     let last_name: String = payload.last_name;

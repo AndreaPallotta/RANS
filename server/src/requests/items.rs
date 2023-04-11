@@ -4,6 +4,7 @@ use axum::extract::Path;
 use axum::{http::StatusCode, Json};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, Number, json};
+use utoipa::ToSchema;
 use crate::db::Database;
 use crate::models::Item;
 use crate::api::{ApiResponse, generate_error};
@@ -11,12 +12,12 @@ use arangors::document::{
     options::{RemoveOptions, UpdateOptions}
 };
 
-#[derive(Deserialize, Debug, Serialize)]
+#[derive(Deserialize, Debug, Serialize, ToSchema)]
 pub struct GetItemReq {
     id: String,
 }
 
-#[derive(Deserialize, Debug, Serialize)]
+#[derive(Deserialize, Debug, Serialize, ToSchema)]
 pub struct AddItemReq {
     name: String,
     description: String,
@@ -24,7 +25,7 @@ pub struct AddItemReq {
     quantity: i64,
 }
 
-#[derive(Deserialize, Debug, Serialize, Clone)]
+#[derive(Deserialize, Debug, Serialize, Clone, ToSchema)]
 pub struct UpdateItemReq {
     id: String,
     name: Option<String>,
@@ -33,13 +34,13 @@ pub struct UpdateItemReq {
     quantity: Option<i64>,
 }
 
-#[derive(Deserialize, Debug, Serialize)]
+#[derive(Deserialize, Debug, Serialize, ToSchema)]
 pub struct DeleteItemReq {
     id: String,
 }
 
-#[derive(Debug, Serialize)]
-struct ItemUpdate {
+#[derive(Debug, Serialize, ToSchema)]
+pub struct ItemUpdate {
     #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -50,6 +51,18 @@ struct ItemUpdate {
     quantity: Option<i64>,
 }
 
+#[utoipa::path(
+    get,
+    path = "/api/get_item/{name}",
+    params(
+        ("name" = String, Path, description = "Item Name")
+    ),
+    responses(
+        (status = 200, description = "Return list of items that loosely match the name", body = Vec<Item>),
+        (status = 404, description = "No results found", body = ErrorResponse),
+        (status = 500, description = "Error in the database query", body = ErrorResponse)
+    )
+)]
 pub async fn get_item(Extension(database): Extension<Database>, Path(name): Path<String>) -> (StatusCode, Json<ApiResponse<Vec<Item>>>) {
     let mut bind_vars: HashMap<&str, Value> = HashMap::new();
     bind_vars.insert("name", name.to_owned().into());
@@ -68,6 +81,14 @@ pub async fn get_item(Extension(database): Extension<Database>, Path(name): Path
     }
 }
 
+#[utoipa::path(
+    get,
+    path = "/api/get_items",
+    responses(
+        (status = 200, description = "Return all items in the database", body = Vec<Item>),
+        (status = 500, description = "Error in the database query", body = ErrorResponse)
+    )
+)]
 pub async fn get_items(Extension(database): Extension<Database>) -> (StatusCode, Json<ApiResponse<Vec<Item>>>) {
     match database.arango_db.aql_str("FOR item IN Item RETURN item").await {
         Ok(items) => {
@@ -79,6 +100,16 @@ pub async fn get_items(Extension(database): Extension<Database>) -> (StatusCode,
     }
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/add_item",
+    request_body = AddItemReq,
+    responses(
+        (status = 200, description = "Return created item", body = Item),
+        (status = 500, description = "Error parsing request body. Missing or malformatted attributes", body = ErrorResponse),
+        (status = 500, description = "Error in the database query", body = ErrorResponse)
+    )
+)]
 pub async fn add_item(Extension(database): Extension<Database>, Json(payload): Json<AddItemReq>) -> (StatusCode, Json<ApiResponse<Item>>) {
     let name: String = payload.name;
     let description: String = payload.description;
@@ -119,6 +150,16 @@ pub async fn add_item(Extension(database): Extension<Database>, Json(payload): J
     }
 }
 
+#[utoipa::path(
+    put,
+    path = "/api/edit_item",
+    request_body = UpdateItemReq,
+    responses(
+        (status = 200, description = "Return created item", body = Item),
+        (status = 404, description = "Error editing item. Item does not exist in database", body = ErrorResponse),
+        (status = 500, description = "Error in the database query", body = ErrorResponse)
+    )
+)]
 pub async fn edit_item(Extension(database): Extension<Database>, Json(payload): Json<UpdateItemReq>) -> (StatusCode, Json<ApiResponse<Value>>) {
     let id = payload.id;
     let name = payload.name;
@@ -154,6 +195,16 @@ pub async fn edit_item(Extension(database): Extension<Database>, Json(payload): 
 
 }
 
+#[utoipa::path(
+    delete,
+    path = "/api/delete_item",
+    request_body = DeleteItemReq,
+    responses(
+        (status = 200, description = "Return deleted item name", body = String),
+        (status = 404, description = "Error deleting item. Item does not exist in database", body = ErrorResponse),
+        (status = 500, description = "Error in the database query", body = ErrorResponse)
+    )
+)]
 pub async fn delete_item(Extension(database): Extension<Database>, Json(payload): Json<DeleteItemReq>) -> (StatusCode, Json<ApiResponse<Value>>) {
     let id = payload.id;
     let collection = database.arango_db.collection("Item").await.unwrap();
