@@ -2,6 +2,8 @@
   import Button from "@smui/button/src/Button.svelte";
   import IconButton from '@smui/icon-button';
   import { createEventDispatcher, onMount } from "svelte";
+  import authStore from "../store/auth.store";
+  import { Role } from "../types/ifaces";
 
   let query = "";
 
@@ -37,5 +39,7 @@
     <IconButton class="material-icons" on:click={handleClear}>clear</IconButton>
   {/if}
   <Button on:click={query.trim().length === 0 ? handleClear : handleSearch} variant="raised" style="padding: 1.5rem; flex: 0.1">Search</Button>
-  <Button on:click={handleAdd} variant="raised" style="padding: 1.5rem; flex: 0.1">Add Item</Button>
+  {#if $authStore.role == Role.VENDOR}
+    <Button on:click={handleAdd} variant="raised" style="padding: 1.5rem; flex: 0.1">Add Item</Button>
+  {/if}
 </div>

@@ -109,7 +109,7 @@ button:focus-visible {
   color: #000;
 }
 
-#home-wrapper {
+.page-container {
   width: 100vw;
   background-color: #fff;
 }

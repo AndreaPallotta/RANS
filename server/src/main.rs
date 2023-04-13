@@ -3,7 +3,7 @@ use server::constants::DEV_CONFIG_PATH;
 use server::toml_env::{Config, DatabaseConfig};
 use utoipa_swagger_ui::SwaggerUi;
 use std::net::SocketAddr;
-use server::db::{Database, DBConnector};
+use server::db::{Database, DBConnector, DatabaseError};
 use server::requests::routes::create_routes;
 use utoipa::OpenApi;
 
@@ -54,7 +54,17 @@ async fn main() {
         }
     };
 
-    let db: Database = get_db(config.db).await;
+    let db_result = get_db(config.db).await;
+
+    let db: Database = match db_result {
+        Ok(db) => db,
+        Err(e) => {
+            eprintln!("{:?}", e);
+            return;
+        }
+    };
+
+    println!("Successfully connected to database");
 
     let app: Router = create_routes(db, config.log.path.as_str(), &config.server)
             .await
@@ -62,13 +72,14 @@ async fn main() {
 
     let addr: SocketAddr = SocketAddr::from(config.server.socket_addr());
     tracing::info!("listening on {}", addr);
+    println!("Server listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
         .expect("Server failed to start");
 }
 
-async fn get_db(config: DatabaseConfig) -> Database {
+async fn get_db(config: DatabaseConfig) -> Result<Database, Box<DatabaseError>> {
     let connector: DBConnector = DBConnector {
         db_url: config.get_url(),
         db_name: config.name,
@@ -76,8 +87,5 @@ async fn get_db(config: DatabaseConfig) -> Database {
         db_password: config.password,
     };
 
-    match Database::new(connector).await {
-        Ok(db) => db,
-        Err(e) => panic!("{:?}", e),
-    }
+    Database::new(connector).await.map_err(|e| e.into())
 }

@@ -16,3 +16,17 @@ export interface DeleteItemRes {
 export type UpdateItemReq = {
     id: string;
 } & Partial<Item>;
+
+export enum Role {
+    CUSTOMER = 'CUSTOMER',
+    VENDOR = 'VENDOR'
+};
+
+export type AddOrderReq = {
+    user_id: string;
+    item_id: string;
+    item_name: string;
+    quantity: number;
+    quantity_diff: number;
+    price: number;
+}

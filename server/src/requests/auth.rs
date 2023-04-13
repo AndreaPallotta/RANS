@@ -35,6 +35,7 @@ pub struct SignupParams {
     last_name: String,
     email: String,
     password: String,
+    role: String
 }
 
 #[utoipa::path(
@@ -84,6 +85,7 @@ pub async fn handle_signup(Extension(database): Extension<Database>, Extension(s
     let last_name: String = payload.last_name;
     let email: String = payload.email;
     let password: String = payload.password;
+    let role: String = payload.role;
 
     let hashed_password = match hash(password, DEFAULT_COST) {
         Ok(h) => h,
@@ -96,7 +98,8 @@ pub async fn handle_signup(Extension(database): Extension<Database>, Extension(s
         first_name: @first_name,
         last_name: @last_name,
         email: @email,
-        password: @hashed_password
+        password: @hashed_password,
+        role: @role
     } INTO User
     RETURN NEW
     ";
@@ -106,6 +109,7 @@ pub async fn handle_signup(Extension(database): Extension<Database>, Extension(s
     bind_vars.insert("last_name", last_name.into());
     bind_vars.insert("email", email.clone().into());
     bind_vars.insert("hashed_password", hashed_password.into());
+    bind_vars.insert("role", role.into());
 
     let result = database.arango_db.aql_bind_vars(query, bind_vars).await;
 

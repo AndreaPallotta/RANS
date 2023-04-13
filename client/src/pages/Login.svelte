@@ -70,9 +70,8 @@
     import type { ISignIn } from '../store/auth.store';
     import authStore, { jwtStore } from '../store/auth.store';
     import notifStore from '../store/notification.store';
-    import type { IUser } from '../types/models';
+    import type { AuthRes } from '../types/ifaces';
     import { axiosPost } from '../utils/api.utils';
-  import type { AuthRes } from '../types/ifaces';
 
     const signIn: ISignIn = {
         email: "",
@@ -101,6 +100,7 @@
 
         $authStore = response.data.content.user;
         $jwtStore = response.data.content.token;
+
         $notifStore.open('Successfully logged in', 'success');
 
         try {

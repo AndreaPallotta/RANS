@@ -15,6 +15,8 @@
     "@smui/dialog": "^7.0.0-beta.0",
     "@smui/layout-grid": "^7.0.0-beta.0",
     "@smui/snackbar": "^7.0.0-beta.0",
+    "@smui/tab": "^7.0.0-beta.3",
+    "@smui/tab-bar": "^7.0.0-beta.3",
     "@smui/top-app-bar": "^7.0.0-beta.0",
     "@sveltejs/vite-plugin-svelte": "^2.0.3",
     "@tsconfig/svelte": "^3.0.0",

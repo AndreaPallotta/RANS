@@ -23,12 +23,18 @@
       </PrimaryAction>
       <Actions>
         <ActionButtons>
-          <Button on:click={handleEdit}>
-            <Label>Edit</Label>
-          </Button>
-          <Button on:click={handleDelete}>
-            <Label>Delete</Label>
-          </Button>
+        {#if $authStore.role === Role.VENDOR}
+            <Button on:click={handleEdit}>
+              <Label>Edit</Label>
+            </Button>
+            <Button on:click={handleDelete}>
+              <Label>Delete</Label>
+            </Button>
+        {:else}
+            <Button on:click={handleOrder}>
+              <Label>Order</Label>
+            </Button>
+        {/if}
         </ActionButtons>
       </Actions>
     </Card>
@@ -45,6 +51,8 @@
     PrimaryAction
   } from '@smui/card';
   import { createEventDispatcher } from 'svelte';
+  import authStore from '../store/auth.store';
+  import { Role } from '../types/ifaces';
   import type { Item } from '../types/models';
   import { formatNumberLiteral } from '../utils/utils';
 
@@ -56,6 +64,10 @@
 
   const handleEdit = () => {
     dispatch("edit", item);
+  }
+
+  const handleOrder = () => {
+    dispatch("order", item);
   }
 
   export let item: Item;

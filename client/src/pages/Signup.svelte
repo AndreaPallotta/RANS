@@ -1,5 +1,11 @@
 <div class="container">
     <div style="background-color: rgb(207, 205, 204, 0.4); padding: 3rem; border-radius: 10px">
+        <TabBar {tabs} let:tab bind:active style="margin-bottom: 2rem;">
+            <Tab {tab}>
+                <TabIcon class="material-icons">{tab.icon}</TabIcon>
+                <TabLabel>{tab.label}</TabLabel>
+            </Tab>
+        </TabBar>
         <Textfield
             variant="filled"
             bind:value={signUp.first_name}
@@ -69,7 +75,7 @@
             style="width: 100%;"
             on:click={handleSignUp}
             >
-            <Label>Log In</Label>
+            <Label>Sign Up</Label>
         </Button>
     </div>
 </div>
@@ -86,6 +92,8 @@
 <script lang="ts">
     import Button, { Label } from '@smui/button';
     import IconButton from '@smui/icon-button';
+    import Tab, { Icon as TabIcon, Label as TabLabel } from '@smui/tab';
+    import TabBar from '@smui/tab-bar';
     import Textfield from '@smui/textfield';
     import HelperText from '@smui/textfield/helper-text';
     import Icon from '@smui/textfield/icon';
@@ -94,9 +102,21 @@
     import type { ISignUp } from '../store/auth.store';
     import authStore, { jwtStore } from '../store/auth.store';
     import notifStore from '../store/notification.store';
-    import type { AuthRes } from '../types/ifaces';
-    import type { IUser } from '../types/models';
+    import { Role, type AuthRes } from '../types/ifaces';
     import { axiosPost } from '../utils/api.utils';
+
+    const tabs = [
+        {
+            icon: 'person',
+            label: 'Customer',
+            role: Role.CUSTOMER
+        },
+        {
+            icon: 'storefront',
+            label: 'Vendor',
+            role: Role.VENDOR
+        }
+    ];
 
     const signUp: ISignUp = {
         first_name: "",
@@ -107,6 +127,8 @@
     const navigate = useNavigate();
 
     let isVisible = false;
+    let active = tabs[0];
+
     $: icon = isVisible ? "visibility" : "visibility_off";
     $: type = isVisible ? "text" : "password";
     $: isFirstNameValid = signUp.first_name.trim().length > 0;
@@ -120,7 +142,7 @@
     };
 
     const handleSignUp = async () => {
-        const response = await axiosPost<AuthRes, ISignUp>("/api/auth/signup", signUp);
+        const response = await axiosPost<AuthRes, ISignUp>("/api/auth/signup", {...signUp, role: active.role });
 
         if (response.error || !response.data) {
             $notifStore.open(response.error ?? 'Error Logging in', 'error');

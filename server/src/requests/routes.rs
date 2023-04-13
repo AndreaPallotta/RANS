@@ -10,7 +10,7 @@ use log::{LevelFilter, info, error, debug};
 use tracing::Span;
 use crate::{db::Database, toml_env::{Environment, ServerConfig}};
 use crate::logs::set_log;
-use crate::requests::{auth, items, jwt};
+use crate::requests::{auth, items, jwt, orders};
 use tower_http::{
     compression::CompressionLayer,
     propagate_header::PropagateHeaderLayer,
@@ -19,8 +19,6 @@ use tower_http::{
     cors::CorsLayer,
     classify::ServerErrorsFailureClass,
 };
-
-use super::jwt::jwt_middleware;
 
 pub async fn create_routes(database: Database, path: &str, server: &ServerConfig) -> Router {
     set_log(path, LevelFilter::Info);
@@ -35,11 +33,13 @@ pub async fn create_routes(database: Database, path: &str, server: &ServerConfig
         .route("/api/auth/login", post(auth::handle_login))
         .route("/api/auth/signup", post(auth::handle_signup))
         .route("/api/auth/refresh/:email", get(jwt::refresh))
-        .route("/api/get_item/:name", get(items::get_item).route_layer(middleware::from_fn(jwt_middleware)))
-        .route("/api/get_items", get(items::get_items).route_layer(middleware::from_fn(jwt_middleware)))
-        .route("/api/add_item", post(items::add_item).route_layer(middleware::from_fn(jwt_middleware)))
-        .route("/api/edit_item", put(items::edit_item).route_layer(middleware::from_fn(jwt_middleware)))
-        .route("/api/delete_item", delete(items::delete_item).route_layer(middleware::from_fn(jwt_middleware)))
+        .route("/api/get_item/:name", get(items::get_item).route_layer(middleware::from_fn(jwt::jwt_middleware)))
+        .route("/api/get_items", get(items::get_items).route_layer(middleware::from_fn(jwt::jwt_middleware)))
+        .route("/api/add_item", post(items::add_item).route_layer(middleware::from_fn(jwt::jwt_middleware)))
+        .route("/api/edit_item", put(items::edit_item).route_layer(middleware::from_fn(jwt::jwt_middleware)))
+        .route("/api/delete_item", delete(items::delete_item).route_layer(middleware::from_fn(jwt::jwt_middleware)))
+        .route("/api/get_orders/:user_id", get(orders::get_orders).route_layer(middleware::from_fn(jwt::jwt_middleware)))
+        .route("/api/add_order", post(orders::add_order).route_layer(middleware::from_fn(jwt::jwt_middleware)))
         .layer(Extension(database))
         .layer(Extension(server.secret.clone()))
         .layer(CompressionLayer::new())

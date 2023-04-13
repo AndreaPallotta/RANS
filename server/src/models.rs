@@ -3,6 +3,18 @@ use serde::{Serialize, Deserialize};
 use chrono::NaiveDateTime;
 use utoipa::ToSchema;
 
+#[derive(Deserialize, Serialize, Debug, Clone, JsonSchema)]
+pub enum Role {
+    CUSTOMER,
+    VENDOR
+}
+
+impl Default for Role {
+    fn default() -> Self {
+        Role::CUSTOMER
+    }
+}
+
 #[derive(Deserialize, Serialize, JsonSchema, Debug, Clone, ToSchema)]
 #[serde(deny_unknown_fields)]
 pub struct User {
@@ -13,6 +25,8 @@ pub struct User {
     pub last_name: String,
     pub email: String,
     pub password: String,
+    #[serde(default)]
+    pub role: Role,
 }
 
 #[derive(Deserialize, Serialize, JsonSchema, Debug, Clone, ToSchema)]
@@ -23,8 +37,10 @@ pub struct Order {
     pub _id: String,
     pub date: NaiveDateTime,
     pub user_id: String,
-    pub item_ids: Vec<String>,
+    pub item_id: String,
+    pub item_name: String,
     pub quantity: i64,
+    pub price: f64,
 }
 
 #[derive(Deserialize, Serialize, JsonSchema, Debug, Clone, ToSchema)]

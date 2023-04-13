@@ -37,7 +37,7 @@ var collectionsNames = collections.reduce(
   []
 );
 
-var collectionsToCreate = ['User', 'Item'];
+var collectionsToCreate = ['User', 'Item', 'Order'];
 
 collectionsToCreate.forEach((name) => {
   if (!collectionsNames.includes(name)) {

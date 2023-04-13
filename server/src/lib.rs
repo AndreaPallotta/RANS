@@ -9,4 +9,5 @@ pub mod requests {
     pub mod auth;
     pub mod items;
     pub mod jwt;
+    pub mod orders;
 }

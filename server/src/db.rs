@@ -1,4 +1,4 @@
-use arangors::{Connection, Database as ArangoDatabase, uclient::surf::SurfClient, GenericConnection};
+use arangors::{Connection, Database as ArangoDatabase, uclient::surf::SurfClient, GenericConnection, ArangoError};
 
 #[derive(Clone)]
 pub struct Database {
@@ -12,17 +12,33 @@ pub struct DBConnector {
     pub db_password: String,
 }
 
+#[derive(Debug)]
+pub enum DatabaseError {
+    ConnectionError(String),
+    ArangoError(ArangoError),
+}
+
+impl From<ArangoError> for DatabaseError {
+    fn from(error: ArangoError) -> Self {
+        DatabaseError::ArangoError(error)
+    }
+}
+
 impl Database {
-    pub async fn new(connector: DBConnector) -> Result<Self, arangors::error::ArangoError> {
+    pub async fn new(connector: DBConnector) -> Result<Self, DatabaseError> {
         let arango_conn: GenericConnection<SurfClient> = Connection::establish_basic_auth(
             &connector.db_url,
             &connector.db_username,
-            &connector.db_password
+            &connector.db_password,
         )
         .await
-        .expect("===== Failed to connect to database =====");
+        .map_err(|err| DatabaseError::ConnectionError(format!("Failed to connect to database {}", err.to_string())))?;
 
-        let arango_db: ArangoDatabase<SurfClient> = arango_conn.db(&connector.db_name).await.unwrap();
+        let arango_db: ArangoDatabase<SurfClient> = arango_conn
+            .db(&connector.db_name)
+            .await
+            .map_err(|err| DatabaseError::ConnectionError(format!("Failed to connect to database {}", err.to_string())))?;
+
         Ok(Database { arango_db })
     }
 }

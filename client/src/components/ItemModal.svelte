@@ -86,7 +86,7 @@
   }
   $: isNameValid = item.name.trim().length > 0;
   $: isPriceValid = item.price > 0 && item.price <= 1000000;
-  $: isQuantityValid = item.quantity >= 0 && item.price <= 1000000;
+  $: isQuantityValid = item.quantity >= 0 && item.quantity <= 1000000;
   $: isButtonDisabled = !isNameValid || !isPriceValid || !isQuantityValid || !isFormModified;
 
   const title = itemToEdit !== null ? `Edit "${item.name}"` : "Add New Item";

@@ -1,3 +1,5 @@
+import type { Role } from "./ifaces";
+
 export interface Item {
     _key: string;
     _rev: string;
@@ -16,4 +18,17 @@ export interface IUser {
     last_name: string;
     email: string;
     password: string;
+    role: Role;
+}
+
+export interface IOrder {
+    _key: string;
+    _rev: string;
+    _id: string;
+    user_id: string;
+    item_id: string;
+    item_name: string;
+    quantity: number;
+    price: number;
+    date: Date;
 }

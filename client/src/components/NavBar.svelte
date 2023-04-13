@@ -9,6 +9,7 @@
   import { onMount } from "svelte";
   import { Link } from 'svelte-navigator';
   import authStore from "../store/auth.store";
+  import { Role } from "../types/ifaces";
   import type { IUser } from "../types/models";
 
   export let topAppBar: TopAppBar;
@@ -27,7 +28,9 @@
   <Row>
     <Section>
         <IconButton class="material-icons">menu</IconButton>
-        <Title>E-Commerce With RANS</Title>
+        <Link to="/" class="nav-link">
+          <Title>E-Commerce With RANS</Title>
+        </Link>
     </Section>
     <Section align="end" toolbar>
         {#if $authStore === null}
@@ -35,6 +38,9 @@
             <Link to="/signup" class="nav-link">Sign up</Link>
         {:else}
             <Link to="/" class="nav-link">Home</Link>
+            {#if $authStore.role == Role.CUSTOMER}
+              <Link to="/orders" class="nav-link">Orders</Link>
+            {/if}
             <Link to="/login" class="nav-link" on:click={handleLogout}>Log Out</Link>
         {/if}
     </Section>

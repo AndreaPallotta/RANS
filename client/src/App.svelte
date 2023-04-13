@@ -7,6 +7,7 @@
   import ProtectedRoute from "./components/ProtectedRoute.svelte";
   import Home from "./pages/Home.svelte";
   import Login from "./pages/Login.svelte";
+  import Orders from "./pages/Orders.svelte";
   import Signup from "./pages/Signup.svelte";
   import authStore, { jwtStore } from "./store/auth.store";
   import type { IUser } from "./types/models";
@@ -30,6 +31,9 @@
     </Route>
     <Route path="/signup">
       <Signup />
+    </Route>
+    <Route path="/orders">
+      <Orders />
     </Route>
     <Route path="*">
       <div class="container">
