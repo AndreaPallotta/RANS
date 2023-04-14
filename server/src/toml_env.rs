@@ -1,6 +1,9 @@
-use std::{error::Error, net::{Ipv4Addr, SocketAddr, IpAddr}};
 use log::LevelFilter;
 use serde::{Deserialize, Deserializer};
+use std::{
+    error::Error,
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+};
 use tower_http::cors::AllowOrigin;
 
 #[derive(Debug, Deserialize)]
@@ -45,7 +48,9 @@ pub struct LogConfig {
 }
 
 fn deserialize_log_level<'de, D>(deserializer: D) -> Result<LevelFilter, D::Error>
-where D: Deserializer<'de> {
+where
+    D: Deserializer<'de>,
+{
     let log_string = String::deserialize(deserializer)?;
     let level = match log_string.to_lowercase().as_str() {
         "off" => LevelFilter::Off,
@@ -54,7 +59,7 @@ where D: Deserializer<'de> {
         "info" => LevelFilter::Info,
         "debug" => LevelFilter::Debug,
         "trace" => LevelFilter::Trace,
-        _ => LevelFilter::Info
+        _ => LevelFilter::Info,
     };
 
     Ok(level)
@@ -84,14 +89,16 @@ impl ServerConfig {
                     origins.push(value.parse().unwrap())
                 }
                 return Some(AllowOrigin::list(origins));
-            },
-            None => None
+            }
+            None => None,
         }
     }
 }
 
 fn deserialize_host<'de, D>(deserializer: D) -> Result<IpAddr, D::Error>
-where D: Deserializer<'de> {
+where
+    D: Deserializer<'de>,
+{
     let host = String::deserialize(deserializer)?;
     match host.parse() {
         Ok(ip) => Ok(ip),
@@ -100,7 +107,9 @@ where D: Deserializer<'de> {
 }
 
 fn deserialize_env<'de, D>(deserializer: D) -> Result<Environment, D::Error>
-where D: Deserializer<'de> {
+where
+    D: Deserializer<'de>,
+{
     let env_string = String::deserialize(deserializer)?;
 
     let env = match env_string.to_lowercase().as_str() {
@@ -111,7 +120,6 @@ where D: Deserializer<'de> {
 
     Ok(env)
 }
-
 
 #[derive(Debug, Deserialize, PartialEq)]
 pub enum Environment {

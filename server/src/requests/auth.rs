@@ -1,13 +1,13 @@
-use std::collections::HashMap;
-use axum::Extension;
-use axum::{http::StatusCode, Json};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use bcrypt::{hash, DEFAULT_COST, verify};
-use utoipa::ToSchema;
+use crate::api::{generate_error, ApiResponse};
 use crate::db::Database;
 use crate::models::User;
-use crate::api::{ApiResponse, generate_error};
+use axum::Extension;
+use axum::{http::StatusCode, Json};
+use bcrypt::{hash, verify, DEFAULT_COST};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::collections::HashMap;
+use utoipa::ToSchema;
 
 use super::jwt::generate_jwt;
 
@@ -35,7 +35,7 @@ pub struct SignupParams {
     last_name: String,
     email: String,
     password: String,
-    role: String
+    role: String,
 }
 
 #[utoipa::path(
@@ -47,25 +47,45 @@ pub struct SignupParams {
         (status = 400, description = "Credentials are wrong", body = ErrorResponse)
     )
 )]
-pub async fn handle_login(Extension(database): Extension<Database>, Extension(secret): Extension<String>, Json(payload): Json<LoginParams>) -> (StatusCode, Json<ApiResponse<AuthRes>>) {
+pub async fn handle_login(
+    Extension(database): Extension<Database>,
+    Extension(secret): Extension<String>,
+    Json(payload): Json<LoginParams>,
+) -> (StatusCode, Json<ApiResponse<AuthRes>>) {
     let email: String = payload.email;
     let password: String = payload.password;
 
     let mut bind_vars: HashMap<&str, Value> = HashMap::new();
     bind_vars.insert("email", email.to_owned().into());
 
-    let users: Vec<User> = database.arango_db.aql_bind_vars("FOR user IN User FILTER user.email == @email RETURN user", bind_vars).await.unwrap();
+    let users: Vec<User> = database
+        .arango_db
+        .aql_bind_vars(
+            "FOR user IN User FILTER user.email == @email RETURN user",
+            bind_vars,
+        )
+        .await
+        .unwrap();
 
     if users.is_empty() {
-        (StatusCode::BAD_REQUEST, generate_error("Email and/or password are wrong"))
+        (
+            StatusCode::BAD_REQUEST,
+            generate_error("Email and/or password are wrong"),
+        )
     } else {
         let user = users[0].clone();
 
         if verify(password, &user.password).unwrap_or(false) {
             let token = generate_jwt(&email, &secret).unwrap();
-            (StatusCode::OK, Json(ApiResponse::Success( AuthRes::new(user, token))))
+            (
+                StatusCode::OK,
+                Json(ApiResponse::Success(AuthRes::new(user, token))),
+            )
         } else {
-            (StatusCode::BAD_REQUEST, generate_error("Email and/or password are wrong"))
+            (
+                StatusCode::BAD_REQUEST,
+                generate_error("Email and/or password are wrong"),
+            )
         }
     }
 }
@@ -80,7 +100,11 @@ pub async fn handle_login(Extension(database): Extension<Database>, Extension(se
         (status = 500, description = "Error during query/hashing", body = ErrorResponse)
     )
 )]
-pub async fn handle_signup(Extension(database): Extension<Database>, Extension(secret): Extension<String>, Json(payload): Json<SignupParams>) -> (StatusCode, Json<ApiResponse<AuthRes>>) {
+pub async fn handle_signup(
+    Extension(database): Extension<Database>,
+    Extension(secret): Extension<String>,
+    Json(payload): Json<SignupParams>,
+) -> (StatusCode, Json<ApiResponse<AuthRes>>) {
     let first_name: String = payload.first_name;
     let last_name: String = payload.last_name;
     let email: String = payload.email;
@@ -89,11 +113,15 @@ pub async fn handle_signup(Extension(database): Extension<Database>, Extension(s
 
     let hashed_password = match hash(password, DEFAULT_COST) {
         Ok(h) => h,
-        Err(err) => return (StatusCode::INTERNAL_SERVER_ERROR, generate_error(format!("Error hashing password: {:?}", {err}).as_str())),
+        Err(err) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                generate_error(format!("Error hashing password: {:?}", { err }).as_str()),
+            )
+        }
     };
 
-    let query =
-    "
+    let query = "
     INSERT {
         first_name: @first_name,
         last_name: @last_name,
@@ -117,14 +145,23 @@ pub async fn handle_signup(Extension(database): Extension<Database>, Extension(s
         Ok(mut users) => {
             if let Some(user) = users.pop() {
                 let token = generate_jwt(&email, &secret).unwrap();
-                (StatusCode::OK, Json(ApiResponse::Success(AuthRes { user, token })))
+                (
+                    StatusCode::OK,
+                    Json(ApiResponse::Success(AuthRes { user, token })),
+                )
             } else {
-                (StatusCode::INTERNAL_SERVER_ERROR, generate_error("Error creating user"))
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    generate_error("Error creating user"),
+                )
             }
-        },
+        }
         Err(err) => {
             eprintln!("Error creating user: {:?}", err);
-            (StatusCode::BAD_REQUEST, generate_error("Email is already associated with another user"))
+            (
+                StatusCode::BAD_REQUEST,
+                generate_error("Email is already associated with another user"),
+            )
         }
     }
 }

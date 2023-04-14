@@ -1,9 +1,9 @@
-use log::{Log, Record, Level, Metadata, LevelFilter};
-use std::{fs, path::PathBuf};
 use chrono::Utc;
+use log::{Level, LevelFilter, Log, Metadata, Record};
 use std::io::Write;
+use std::{fs, path::PathBuf};
 
-use crate::constants::{INFO_LOG_FILE, ERROR_LOG_FILE, LOG_TS_FORMAT};
+use crate::constants::{ERROR_LOG_FILE, INFO_LOG_FILE, LOG_TS_FORMAT};
 
 struct Logger {
     info_file: fs::File,
@@ -12,7 +12,7 @@ struct Logger {
 
 impl Logger {
     fn new(path: &str) -> Logger {
-        let log_dir_path =  PathBuf::from(path);
+        let log_dir_path = PathBuf::from(path);
         create_folder_path(&log_dir_path);
 
         let mut info_log = log_dir_path.clone();

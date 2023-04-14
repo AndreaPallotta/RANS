@@ -1,11 +1,11 @@
 use axum::Router;
 use server::constants::DEV_CONFIG_PATH;
-use server::toml_env::{Config, DatabaseConfig};
-use utoipa_swagger_ui::SwaggerUi;
-use std::net::SocketAddr;
-use server::db::{Database, DBConnector, DatabaseError};
+use server::db::{DBConnector, Database, DatabaseError};
 use server::requests::routes::create_routes;
+use server::toml_env::{Config, DatabaseConfig};
+use std::net::SocketAddr;
 use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
@@ -43,7 +43,6 @@ async fn main() {
     )]
     struct ApiDoc;
 
-
     let parsed_config = Config::parse(DEV_CONFIG_PATH);
 
     let config = match parsed_config {
@@ -67,8 +66,8 @@ async fn main() {
     println!("Successfully connected to database");
 
     let app: Router = create_routes(db, config.log.path.as_str(), &config.server)
-            .await
-            .merge(SwaggerUi::new("/api/v1").url("/api-docs/openapi.json", ApiDoc::openapi()));
+        .await
+        .merge(SwaggerUi::new("/api/v1").url("/api-docs/openapi.json", ApiDoc::openapi()));
 
     let addr: SocketAddr = SocketAddr::from(config.server.socket_addr());
     tracing::info!("listening on {}", addr);

@@ -1,12 +1,12 @@
-use schemars::JsonSchema;
-use serde::{Serialize, Deserialize};
 use chrono::NaiveDateTime;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 #[derive(Deserialize, Serialize, Debug, Clone, JsonSchema)]
 pub enum Role {
     CUSTOMER,
-    VENDOR
+    VENDOR,
 }
 
 impl Default for Role {
@@ -19,7 +19,7 @@ impl Default for Role {
 #[serde(deny_unknown_fields)]
 pub struct User {
     pub _key: String,
-    pub _rev :String,
+    pub _rev: String,
     pub _id: String,
     pub first_name: String,
     pub last_name: String,
@@ -33,7 +33,7 @@ pub struct User {
 #[serde(deny_unknown_fields)]
 pub struct Order {
     pub _key: String,
-    pub _rev :String,
+    pub _rev: String,
     pub _id: String,
     pub date: NaiveDateTime,
     pub user_id: String,
@@ -47,7 +47,7 @@ pub struct Order {
 #[serde(deny_unknown_fields)]
 pub struct Item {
     pub _key: String,
-    pub _rev :String,
+    pub _rev: String,
     pub _id: String,
     pub name: String,
     pub description: String,
