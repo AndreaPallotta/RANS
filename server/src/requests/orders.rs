@@ -21,6 +21,11 @@ pub struct AddOrderReq {
 }
 
 #[derive(Deserialize, Debug, Serialize, ToSchema)]
+pub struct DeleteOrderReq {
+    user_id: String,
+}
+
+#[derive(Deserialize, Debug, Serialize, ToSchema)]
 pub struct ItemQuantityUpdate {
     quantity: i64,
 }
@@ -89,6 +94,7 @@ pub async fn add_order(
     let date: NaiveDateTime = Local::now().naive_local();
 
     let collection = database.arango_db.collection("Item").await.unwrap();
+
     let item: Result<Document<Item>, arangors::ClientError> =
         collection.document(&item_id.to_owned()).await;
     match item {
@@ -164,5 +170,34 @@ pub async fn add_order(
                 generate_error(format!("Error creating order: {}", e.to_string()).as_str()),
             )
         }
+    }
+}
+
+#[utoipa::path(
+    delete,
+    path = "/api/delete_orders",
+    request_body = DeleteOrderReq,
+    responses(
+        (status = 200, description = "Returns remaining orders", body = Order),
+        (status = 500, description = "Error querying the database", body = ErrorResponse)
+    )
+)]
+pub async fn delete_orders(
+    Extension(database): Extension<Database>,
+    Json(payload): Json<DeleteOrderReq>,
+) -> (StatusCode, Json<ApiResponse<Vec<Order>>>) {
+    let user_id: String = payload.user_id;
+
+    let mut bind_vars: HashMap<&str, Value> = HashMap::new();
+    bind_vars.insert("user_id", user_id.to_owned().into());
+
+    let query: &str = "FOR order IN Order FILTER order.user_id == @user_id REMOVE order IN Order";
+
+    match database.arango_db.aql_bind_vars(query, bind_vars).await {
+        Ok(orders) => (StatusCode::OK, Json(ApiResponse::Success(orders))),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            generate_error(format!("Error getting item: {}", e.to_string()).as_str()),
+        ),
     }
 }

@@ -1,3 +1,20 @@
+<script lang="ts">
+  import Card, { Content, Media, PrimaryAction } from "@smui/card"
+  import type { IOrder } from "../types/models"
+  import { formatNumberLiteral } from "../utils/utils"
+
+  export let order: IOrder
+
+  const formattedDate = () => {
+    const date = new Date(order.date)
+
+    return new Intl.DateTimeFormat("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(date)
+  }
+</script>
+
 <div class="card-display">
   <div class="card-container">
     <Card>
@@ -12,31 +29,18 @@
             {formattedDate()}
           </h4>
 
-          <div class="mdc-typography--headline6"><b>Price:</b> ${order.price.toFixed(2)}</div>
-          <div class="mdc-typography--headline6"><b>Quantity:</b> {formatNumberLiteral(order.quantity)}</div>
+          <div class="mdc-typography--headline6">
+            <b>Price:</b> ${order.price.toFixed(2)}
+          </div>
+          <div class="mdc-typography--headline6">
+            <b>Quantity:</b>
+            {formatNumberLiteral(order.quantity)}
+          </div>
         </Content>
       </PrimaryAction>
     </Card>
   </div>
 </div>
-
-<script lang="ts">
-  import Card, {
-    Content,
-    Media,
-    PrimaryAction
-  } from '@smui/card';
-  import type { IOrder } from '../types/models';
-  import { formatNumberLiteral } from '../utils/utils';
-
-  export let order: IOrder;
-
-  const formattedDate = () => {
-    const date = new Date(order.date);
-
-    return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
-  }
-</script>
 
 <style>
   * :global(.card-media-16x9) {

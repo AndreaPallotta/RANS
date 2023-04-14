@@ -20,6 +20,9 @@ async fn main() {
             server::requests::items::add_item,
             server::requests::items::edit_item,
             server::requests::items::delete_item,
+            server::requests::orders::get_orders,
+            server::requests::orders::add_order,
+            server::requests::orders::delete_orders
         ),
         components(
             schemas(
@@ -35,6 +38,9 @@ async fn main() {
                 server::requests::items::UpdateItemReq,
                 server::requests::items::DeleteItemReq,
                 server::requests::items::ItemUpdate,
+                server::requests::orders::AddOrderReq,
+                server::requests::orders::DeleteOrderReq,
+                server::requests::orders::ItemQuantityUpdate
             )
         ),
         tags(

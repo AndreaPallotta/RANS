@@ -30,3 +30,7 @@ export type AddOrderReq = {
     quantity_diff: number;
     price: number;
 }
+
+export type DeleteOrderReq = {
+    user_id: string;
+}

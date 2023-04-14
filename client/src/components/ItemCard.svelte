@@ -1,3 +1,35 @@
+<script lang="ts">
+  import Button, { Label } from "@smui/button"
+  import Card, {
+    ActionButtons,
+    Actions,
+    Content,
+    Media,
+    PrimaryAction,
+  } from "@smui/card"
+  import { createEventDispatcher } from "svelte"
+  import authStore from "../store/auth.store"
+  import { Role } from "../types/ifaces"
+  import type { Item } from "../types/models"
+  import { formatNumberLiteral } from "../utils/utils"
+
+  const dispatch = createEventDispatcher()
+
+  const handleDelete = () => {
+    dispatch("delete", item)
+  }
+
+  const handleEdit = () => {
+    dispatch("edit", item)
+  }
+
+  const handleOrder = () => {
+    dispatch("order", item)
+  }
+
+  export let item: Item
+</script>
+
 <div class="card-display">
   <div class="card-container">
     <Card>
@@ -17,61 +49,34 @@
             {/if}
           </h4>
 
-          <div class="mdc-typography--headline6"><b>Price: </b> ${item.price}</div>
-          <div class="mdc-typography--headline6"><b>Quantity:</b> {formatNumberLiteral(item.quantity)}</div>
+          <div class="mdc-typography--headline6">
+            <b>Price: </b> ${item.price}
+          </div>
+          <div class="mdc-typography--headline6">
+            <b>Quantity:</b>
+            {formatNumberLiteral(item.quantity)}
+          </div>
         </Content>
       </PrimaryAction>
       <Actions>
         <ActionButtons>
-        {#if $authStore.role === Role.VENDOR}
+          {#if $authStore.role === Role.VENDOR}
             <Button on:click={handleEdit}>
               <Label>Edit</Label>
             </Button>
             <Button on:click={handleDelete}>
               <Label>Delete</Label>
             </Button>
-        {:else}
+          {:else}
             <Button on:click={handleOrder}>
               <Label>Order</Label>
             </Button>
-        {/if}
+          {/if}
         </ActionButtons>
       </Actions>
     </Card>
   </div>
 </div>
-
-<script lang="ts">
-  import Button, { Label } from '@smui/button';
-  import Card, {
-    ActionButtons,
-    Actions,
-    Content,
-    Media,
-    PrimaryAction
-  } from '@smui/card';
-  import { createEventDispatcher } from 'svelte';
-  import authStore from '../store/auth.store';
-  import { Role } from '../types/ifaces';
-  import type { Item } from '../types/models';
-  import { formatNumberLiteral } from '../utils/utils';
-
-  const dispatch = createEventDispatcher();
-
-  const handleDelete = () => {
-    dispatch("delete", item);
-  }
-
-  const handleEdit = () => {
-    dispatch("edit", item);
-  }
-
-  const handleOrder = () => {
-    dispatch("order", item);
-  }
-
-  export let item: Item;
-</script>
 
 <style>
   * :global(.card-media-16x9) {

@@ -5,6 +5,6 @@ export default defineConfig({
   plugins: [svelte()],
   optimizeDeps: { exclude: ["svelte-navigator"] },
   server: {
-    port: 80,
+    port: 8080,
   }
 })
