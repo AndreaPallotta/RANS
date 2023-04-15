@@ -28,7 +28,7 @@
   const clearOrders = async () => {
     const response = await axiosDelete<IOrder[], DeleteOrderReq>(
       "/api/delete_orders",
-      { user_id: $authStore.user_id }
+      { user_id: $authStore._key }
     )
 
     if (response.error || !response.data) {

@@ -97,6 +97,7 @@ pub async fn add_order(
 
     let item: Result<Document<Item>, arangors::ClientError> =
         collection.document(&item_id.to_owned()).await;
+
     match item {
         Ok(item) => {
             if quantity > item.quantity {
