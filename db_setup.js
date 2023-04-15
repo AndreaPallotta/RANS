@@ -2,7 +2,55 @@
 
 var db = require('internal').db;
 
-const createIndex = ({ collection, type, unique, sparse, field }) => {
+const schemas = {
+  User: {
+    rule: {
+      properties: {
+        first_name: { type : "string" },
+        last_name: { type: "string" },
+        email: { type: "string" },
+        password: { type: "string" },
+        role: { enum: ["CUSTOMER", "VENDOR"] }
+      },
+      additionalProperties: false,
+      required: ["first_name", "last_name", "email", "password", "role"],
+    },
+    level: "moderate",
+    message: "One or more user properties are missing or malformatted",
+  },
+  Order: {
+    rule: {
+      properties: {
+        date: { type : "string" },
+        user_id: { type: "string" },
+        item_id: { type: "string" },
+        item_name: { type: "string" },
+        quantity: { type: "integer" },
+        price: { type: "number" },
+      },
+      additionalProperties: false,
+      required: ["date", "user_id", "item_id", "item_name", "quantity", "price"],
+    },
+    level: "moderate",
+    message: "One or more order properties are missing or malformatted",
+  },
+  Item: {
+    rule: {
+      properties: {
+        name: { type : "string" },
+        description: { type: "string" },
+        quantity: { type: "integer" },
+        price: { type: "number" },
+      },
+      additionalProperties: false,
+      required: ["name", "description", "quantity", "price"],
+    },
+    level: "moderate",
+    message: "One or more item properties are missing or malformatted",
+  }
+}
+
+const createIndex = (collection, type, unique, sparse, field) => {
   var indexExists = db[collection]
     .getIndexes()
     .some(
@@ -13,7 +61,7 @@ const createIndex = ({ collection, type, unique, sparse, field }) => {
         index.fields.includes(field)
     );
 
-  if (indexExists) {
+  if (!indexExists) {
     db[collection].ensureIndex({
       type,
       unique,
@@ -41,7 +89,7 @@ var collectionsToCreate = ['User', 'Item', 'Order'];
 
 collectionsToCreate.forEach((name) => {
   if (!collectionsNames.includes(name)) {
-    db._create(name);
+    db._create(name, { schema: schemas[name]});
   }
 });
 

@@ -212,7 +212,7 @@ if ! rpm -q "cargo" &> /dev/null; then
     echo "Successfully installed cargo!"
 fi
 
-sudo chmod a+x ./db_setup.sh && ./db_setup.js
+sudo chmod a+x ./db_setup.js && ./db_setup.js
 
 echo
 echo "============ Set Up Files ============"
