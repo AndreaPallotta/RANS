@@ -64,7 +64,7 @@ pub async fn create_routes(database: Database, path: &str, server: &ServerConfig
             post(orders::add_order).route_layer(middleware::from_fn(jwt::jwt_middleware)),
         )
         .route(
-            "/api/delete_oders",
+            "/api/delete_orders",
             delete(orders::delete_orders).route_layer(middleware::from_fn(jwt::jwt_middleware)),
         )
         .layer(Extension(database))

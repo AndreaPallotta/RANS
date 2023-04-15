@@ -24,7 +24,7 @@
           <h2 class="mdc-typography--headline6" style="margin: 0;">
             {order.item_name}
           </h2>
-          <span style="color: red;">{order.item_id}</span>
+          <span style="color: red;">Order ID: {order.item_id}</span>
           <h4 class="mdc-typography--headline4" id="description-label">
             {formattedDate()}
           </h4>
