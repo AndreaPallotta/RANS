@@ -253,12 +253,14 @@ copy "$api_bin" "$bin_remote"
 sudo chown root:systemd-journal "$systemd_remote"/rans.service.d/rans.api.service
 sudo chown root:systemd-journal "$systemd_remote"/rans.service
 sudo chown root:systemd-journal "$bin_remote"/server
+sudo chown root:systemd
 sudo chmod 644 "$systemd_remote"/rans.service.d/rans.api.service
 sudo chmod 644 "$systemd_remote"/rans.service
 sudo chmod 744 "$bin_remote"/server
 sudo semanage fcontext -a -t bin_t "$bin_remote"/server
 sudo restorecon -v "$bin_remote"/server
 sudo chcon -Rt httpd_sys_content_t /var/www/
+sudo chcon -Rt httpd_sys_content_t "$log_remote"
 sudo setsebool httpd_can_network_connect on -P
 
 echo
@@ -267,11 +269,9 @@ create_symlink "$systemd_remote/rans.service.d/rans.api.service" "$systemd_remot
 
 echo
 
-
-
 sudo systemctl daemon-reload
 sudo systemctl restart NetworkManager
-sudo systemctl start nginx.service arangodb.service rans.api.service
+sudo systemctl start nginx.service arangodb3.service rans.api.service
 
 echo
 echo "============ Set Up Cron Job ============"

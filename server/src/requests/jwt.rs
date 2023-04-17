@@ -1,6 +1,6 @@
 use crate::{
     api::{generate_error, ApiResponse},
-    constants::DEV_CONFIG_PATH,
+    constants::PROD_CONFIG_PATH,
     db::Database,
     models::User,
     toml_env::Config,
@@ -131,7 +131,7 @@ pub async fn validate_jwt_route(
 }
 
 pub async fn jwt_middleware<B>(req: Request<B>, next: Next<B>) -> Result<Response, StatusCode> {
-    let parsed_config = match Config::parse(DEV_CONFIG_PATH) {
+    let parsed_config = match Config::parse(PROD_CONFIG_PATH) {
         Ok(config) => config,
         Err(err) => {
             eprintln!("Error parsing configuration: {:?}", err);
