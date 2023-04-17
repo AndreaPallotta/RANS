@@ -194,7 +194,7 @@ create_path "$log_remote" true
 
 sudo chown -R $USER:$USER "$log_remote"
 sudo chmod u+w "$log_remote"
-sudo chmod a+x ./db_setup.sh
+sudo chmod a+x ./db_setup.js
 
 echo
 echo "============ Run Ansible Playbook & Set Up Database ============"
