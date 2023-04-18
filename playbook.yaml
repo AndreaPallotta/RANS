@@ -13,10 +13,6 @@
       prompt: 'Enter a password for the ArangoDB root user'
       confirm: true
 
-    - name: arangodb_database_name
-      prompt: 'Enter the name of the database you want to create'
-      private: false
-
   pre_tasks:
     - name: Update Repositories
       dnf: update_cache=yes

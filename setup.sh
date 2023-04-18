@@ -253,7 +253,7 @@ copy "$api_bin" "$bin_remote"
 sudo chown root:systemd-journal "$systemd_remote"/rans.service.d/rans.api.service
 sudo chown root:systemd-journal "$systemd_remote"/rans.service
 sudo chown root:systemd-journal "$bin_remote"/server
-sudo chown root:systemd
+sudo chown -R root:systemd-journame "$log_remote"
 sudo chmod 644 "$systemd_remote"/rans.service.d/rans.api.service
 sudo chmod 644 "$systemd_remote"/rans.service
 sudo chmod 744 "$bin_remote"/server
