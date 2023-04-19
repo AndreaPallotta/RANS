@@ -44,7 +44,7 @@
 
   const searchItem = async (e: CustomEvent<string>) => {
     const response = await axiosGet<Item[], unknown>(
-      `/api/get_item/${e.detail}`
+      `/api/get_item/${encodeURIComponent(e.detail)}`
     )
 
     if (response.error || !response.data) {
