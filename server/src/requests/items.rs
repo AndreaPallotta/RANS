@@ -8,8 +8,8 @@ use axum::{http::StatusCode, Json};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Number, Value};
 use std::collections::HashMap;
-use utoipa::ToSchema;
 use urlencoding::decode;
+use utoipa::ToSchema;
 
 #[derive(Deserialize, Debug, Serialize, ToSchema)]
 pub struct GetItemReq {
@@ -69,7 +69,7 @@ pub async fn get_item(
     let decoded_name = decode(name.as_str()).expect("UTF-8");
 
     let mut bind_vars: HashMap<&str, Value> = HashMap::new();
-    bind_vars.insert("name", decoded_name.into());
+    bind_vars.insert("name", decoded_name.into_owned());
 
     match database.arango_db.aql_bind_vars("FOR item IN Item FILTER LOWER(item.name) LIKE CONCAT('%', LOWER(@name), '%') RETURN item", bind_vars).await {
         Ok(items) => {
