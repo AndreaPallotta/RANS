@@ -69,7 +69,7 @@ pub async fn get_item(
     let decoded_name = decode(name.as_str()).expect("UTF-8");
 
     let mut bind_vars: HashMap<&str, Value> = HashMap::new();
-    bind_vars.insert("name", decoded_name.into_owned());
+    bind_vars.insert("name", Value::String(decoded_name.into_owned()));
 
     match database.arango_db.aql_bind_vars("FOR item IN Item FILTER LOWER(item.name) LIKE CONCAT('%', LOWER(@name), '%') RETURN item", bind_vars).await {
         Ok(items) => {
