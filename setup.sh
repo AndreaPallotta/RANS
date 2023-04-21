@@ -109,7 +109,7 @@ create_symlink() {
 
     if [[ -L "$dest" ]]; then
         echo "$dest is already a symbolic link"
-        return 1
+        return 0
     fi
 
     sudo ln -s "$src" "$dest"
