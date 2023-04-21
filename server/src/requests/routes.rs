@@ -6,6 +6,7 @@ use crate::{
     db::Database,
     toml_env::{Environment, ServerConfig},
 };
+use axum::http::header;
 use axum::{
     body::{Body, Bytes},
     http::{HeaderMap, HeaderName, Request},
@@ -26,9 +27,11 @@ pub async fn create_routes(database: Database, path: &str, server: &ServerConfig
     set_log(path, LevelFilter::Info);
 
     let cors = if server.allow_origins().is_none() || server.env == Environment::DEV {
-        CorsLayer::permissive()
+    CorsLayer::permissive()
     } else {
-        CorsLayer::new().allow_origin(server.allow_origins().unwrap())
+        CorsLayer::new()
+            .allow_origin(server.allow_origins().unwrap())
+            .allow_headers(vec![header::AUTHORIZATION])
     };
 
     Router::new()
