@@ -1,5 +1,5 @@
 use axum::Router;
-use server::constants::DEV_CONFIG_PATH;
+use server::constants::PROD_CONFIG_PATH;
 use server::db::{DBConnector, Database, DatabaseError};
 use server::requests::routes::create_routes;
 use server::toml_env::{Config, DatabaseConfig};
@@ -50,7 +50,7 @@ async fn main() {
     )]
     struct ApiDoc;
 
-    let parsed_config = Config::parse(DEV_CONFIG_PATH);
+    let parsed_config = Config::parse(PROD_CONFIG_PATH);
 
     let config = match parsed_config {
         Ok(config) => config,

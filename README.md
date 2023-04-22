@@ -101,8 +101,19 @@ TODO: Add content description here.
 
 ## API Documentation
 
-<iframe src="https://nervous-duck-98.redoc.ly" width="100%" height="600px"></iframe>
+There are currently two ways to access the documentation:
 
+- Remote (Redocly)
+  1. Navigate to <https:/nervous-duck-98.redoc.ly>
+  2. Sign In or create a new account
+
+  > NOTE: Since the documentation is hosted remotely, you will not be able to run any query unless you have a public-facing instance of the API running.
+
+- Local
+  1. Setup and run the application
+  2. Access the `/api/v1` endpoint on the browser (i.e. <http://rans.iste444.com/api/v1> or <http://localhost:3001/api/v1>)
+
+Additionally, you can generate the UI yourself using the [docs/openapi.json](./docs/openapi.json) file
 
 ---
 
