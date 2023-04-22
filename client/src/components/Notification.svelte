@@ -1,9 +1,9 @@
 <script lang="ts">
-  import IconButton from "@smui/icon-button"
-  import Snackbar, { Actions, Label } from "@smui/snackbar"
+  import IconButton from "@smui/icon-button";
+  import Snackbar, { Actions, Label } from "@smui/snackbar";
   import notifStore, {
     type NotificationVariant,
-  } from "../store/notification.store"
+  } from "../store/notification.store";
 
   let snackbar: Snackbar
 
@@ -16,11 +16,11 @@
     }
   }
 
-  $notifStore = {
+  notifStore.set({
     snackbar,
     message: "",
     open: openNotification,
-  }
+  })
 </script>
 
 <Snackbar bind:this={snackbar} class={$notifStore.variant}>

@@ -1,18 +1,18 @@
 <script lang="ts">
-  import Button, { Label } from "@smui/button"
-  import IconButton from "@smui/icon-button"
-  import Tab, { Icon as TabIcon, Label as TabLabel } from "@smui/tab"
-  import TabBar from "@smui/tab-bar"
-  import Textfield from "@smui/textfield"
-  import HelperText from "@smui/textfield/helper-text"
-  import Icon from "@smui/textfield/icon"
-  import { onMount } from "svelte"
-  import { Link, useNavigate } from "svelte-navigator"
-  import type { ISignUp } from "../store/auth.store"
-  import authStore, { jwtStore } from "../store/auth.store"
-  import notifStore from "../store/notification.store"
-  import { Role, type AuthRes } from "../types/ifaces"
-  import { axiosPost } from "../utils/api.utils"
+  import Button, { Label } from "@smui/button";
+  import IconButton from "@smui/icon-button";
+  import Tab, { Icon as TabIcon, Label as TabLabel } from "@smui/tab";
+  import TabBar from "@smui/tab-bar";
+  import Textfield from "@smui/textfield";
+  import HelperText from "@smui/textfield/helper-text";
+  import Icon from "@smui/textfield/icon";
+  import { onMount } from "svelte";
+  import { Link, useNavigate } from "svelte-navigator";
+  import type { ISignUp } from "../store/auth.store";
+  import authStore, { jwtStore } from "../store/auth.store";
+  import notifStore from "../store/notification.store";
+  import { Role, type AuthRes } from "../types/ifaces";
+  import { axiosPost } from "../utils/api.utils";
 
   const tabs = [
     {
@@ -64,8 +64,8 @@
       return
     }
 
-    $authStore = response.data.content.user
-    $jwtStore = response.data.content.token
+    authStore.set(response.data.content.user);
+    jwtStore.set(response.data.content.token);
     $notifStore.open("Successfully signed up", "success")
 
     try {

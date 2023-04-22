@@ -1,21 +1,14 @@
 <script lang="ts">
-  import Button from "@smui/button/src/Button.svelte"
-  import IconButton from "@smui/icon-button"
-  import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar"
-  import { onMount } from "svelte"
-  import { Link } from "svelte-navigator"
-  import authStore from "../store/auth.store"
-  import { Role } from "../types/ifaces"
-  import type { IUser } from "../types/models"
+  import IconButton from "@smui/icon-button";
+  import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
+  import { Link } from "svelte-navigator";
+  import authStore from "../store/auth.store";
+  import { Role } from "../types/ifaces";
 
   export let topAppBar: TopAppBar
 
-  onMount(() => {
-    $authStore = JSON.parse(localStorage.getItem("user")) as IUser
-  })
-
   const handleLogout = () => {
-    $authStore = null
+    authStore.set(null);
     localStorage.removeItem("user")
   }
 </script>

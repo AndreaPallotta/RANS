@@ -1,14 +1,14 @@
 <script lang="ts">
-  import LayoutGrid, { Cell } from "@smui/layout-grid"
-  import Button, { Label } from "@smui/button"
-  import { onMount } from "svelte"
-  import OrderCard from "../components/OrderCard.svelte"
-  import authStore from "../store/auth.store"
-  import notifStore from "../store/notification.store"
-  import ordersStore from "../store/orders.store"
-  import type { IOrder } from "../types/models"
-  import { axiosDelete, axiosGet } from "../utils/api.utils"
-  import type { DeleteOrderReq } from "../types/ifaces"
+  import Button, { Label } from "@smui/button";
+  import LayoutGrid, { Cell } from "@smui/layout-grid";
+  import { onMount } from "svelte";
+  import OrderCard from "../components/OrderCard.svelte";
+  import authStore from "../store/auth.store";
+  import notifStore from "../store/notification.store";
+  import ordersStore from "../store/orders.store";
+  import type { DeleteOrderReq } from "../types/ifaces";
+  import type { IOrder } from "../types/models";
+  import { axiosDelete, axiosGet } from "../utils/api.utils";
 
   $: isClearDisabled = $ordersStore.length < 1 || !$authStore
 
@@ -41,7 +41,7 @@
 
   onMount(() => {
     getOrders()
-    return () => ($ordersStore = [])
+    return () => (ordersStore.set([]));
   })
 </script>
 

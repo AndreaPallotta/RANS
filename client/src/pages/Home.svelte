@@ -1,45 +1,57 @@
 <script lang="ts">
-  import LayoutGrid, { Cell } from "@smui/layout-grid"
-  import { onMount } from "svelte"
-  import type { Updater } from "svelte/store"
-  import ConfirmationModal from "../components/ConfirmationModal.svelte"
-  import ItemCard from "../components/ItemCard.svelte"
-  import ItemModal from "../components/ItemModal.svelte"
-  import OrderModal from "../components/OrderModal.svelte"
-  import SearchBar from "../components/SearchBar.svelte"
-  import authStore from "../store/auth.store"
-  import itemsStore from "../store/items.store"
-  import notifStore from "../store/notification.store"
-  import ordersStore from "../store/orders.store"
+  import LayoutGrid, { Cell } from "@smui/layout-grid";
+  import { onMount } from "svelte";
+  import ConfirmationModal from "../components/ConfirmationModal.svelte";
+  import ItemCard from "../components/ItemCard.svelte";
+  import ItemModal from "../components/ItemModal.svelte";
+  import OrderModal from "../components/OrderModal.svelte";
+  import SearchBar from "../components/SearchBar.svelte";
+  import authStore from "../store/auth.store";
+  import itemsStore from "../store/items.store";
+  import notifStore from "../store/notification.store";
+  import ordersStore from "../store/orders.store";
   import type {
+    AddItemReq,
     AddOrderReq,
     DeleteItemReq,
     DeleteItemRes,
     UpdateItemReq,
-  } from "../types/ifaces"
-  import type { IOrder, Item } from "../types/models"
+  } from "../types/ifaces";
+  import type { IOrder, Item } from "../types/models";
   import {
     axiosDelete,
     axiosGet,
     axiosPost,
     axiosPut,
-  } from "../utils/api.utils"
-  import { objectDifference } from "../utils/utils"
+  } from "../utils/api.utils";
+  import { objectDifference } from "../utils/utils";
 
-  let open = false
-  let confirmOpen = false
-  let orderOpen = false
-  let selectedItem: Item = null
+  let open = false;
+  let confirmOpen = false;
+  let orderOpen = false;
+  let selectedItem: Item = null;
+
+  $: itemsToDisplay = $itemsStore;
 
   const getItems = async () => {
     const response = await axiosGet<Item[], unknown>("/api/get_items")
 
     if (response.error || !response.data) {
       $notifStore.open(response.error ?? "Error retrieving items", "error")
-      return
+      return;
     }
 
-    $itemsStore = response.data.content
+    itemsStore.set(response.data.content.sort((a: Item, b: Item) => {
+      return a.name.localeCompare(b.name);
+    }));
+  }
+
+  const handleToggle = async (e: CustomEvent<boolean>) => {
+    if (e.detail) {
+      itemsToDisplay = $itemsStore.filter(({ user_id }: Item) => user_id === $authStore._key);
+    } else {
+      itemsToDisplay = $itemsStore;
+    }
   }
 
   const searchItem = async (e: CustomEvent<string>) => {
@@ -55,7 +67,7 @@
       return
     }
 
-    $itemsStore = response.data.content
+    itemsStore.set(response.data.content);
   }
 
   const deleteItem = async () => {
@@ -99,9 +111,12 @@
   }
 
   const addNewItem = async (e: CustomEvent<Partial<Item>>) => {
-    const response = await axiosPost<Item, Partial<Item>>(
+    const response = await axiosPost<Item, AddItemReq>(
       "/api/add_item",
-      e.detail
+      {
+        ...e.detail,
+        user_id: $authStore._key,
+      }
     )
 
     if (response.error || !response.data) {
@@ -178,14 +193,19 @@
 
   onMount(() => {
     getItems()
-    return () => ($itemsStore = [])
+    return () => (itemsStore.set([]));
   })
 </script>
 
 <div class="page-container">
-  <SearchBar on:search={searchItem} on:clear={getItems} on:add={openModal} />
+  <SearchBar
+    on:search={searchItem}
+    on:clear={getItems}
+    on:add={openModal}
+    on:toggle={handleToggle}
+  />
   <LayoutGrid>
-    {#each $itemsStore as item}
+    {#each itemsToDisplay as item}
       <Cell>
         <ItemCard
           {item}

@@ -13,6 +13,10 @@ export interface DeleteItemRes {
     name: string;
 };
 
+export type AddItemReq = {
+    user_id: string,
+} & Partial<Item>;
+
 export type UpdateItemReq = {
     id: string;
 } & Partial<Item>;

@@ -1,15 +1,15 @@
 <script lang="ts">
-  import Button, { Label } from "@smui/button"
-  import IconButton from "@smui/icon-button"
-  import Textfield from "@smui/textfield"
-  import Icon from "@smui/textfield/icon"
-  import { onMount } from "svelte"
-  import { Link, useNavigate } from "svelte-navigator"
-  import type { ISignIn } from "../store/auth.store"
-  import authStore, { jwtStore } from "../store/auth.store"
-  import notifStore from "../store/notification.store"
-  import type { AuthRes } from "../types/ifaces"
-  import { axiosPost } from "../utils/api.utils"
+  import Button, { Label } from "@smui/button";
+  import IconButton from "@smui/icon-button";
+  import Textfield from "@smui/textfield";
+  import Icon from "@smui/textfield/icon";
+  import { onMount } from "svelte";
+  import { Link, useNavigate } from "svelte-navigator";
+  import type { ISignIn } from "../store/auth.store";
+  import authStore, { jwtStore } from "../store/auth.store";
+  import notifStore from "../store/notification.store";
+  import type { AuthRes } from "../types/ifaces";
+  import { axiosPost } from "../utils/api.utils";
 
   const signIn: ISignIn = {
     email: "",
@@ -39,10 +39,10 @@
       return
     }
 
-    $authStore = response.data.content.user
-    $jwtStore = response.data.content.token
+    authStore.set(response.data.content.user);
+    jwtStore.set(response.data.content.token);
 
-    $notifStore.open("Successfully logged in", "success")
+    $notifStore.open(`Welcome back, ${$authStore.first_name}!`, "success")
 
     try {
       localStorage.setItem("user", JSON.stringify($authStore))
