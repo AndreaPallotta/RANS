@@ -1,4 +1,4 @@
-import type { Role } from "./ifaces";
+import type { Role } from './ifaces';
 
 export interface IUser {
     _key: string;

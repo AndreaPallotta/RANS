@@ -19,6 +19,7 @@ pub struct GetItemReq {
 #[derive(Deserialize, Debug, Serialize, ToSchema)]
 pub struct AddItemReq {
     name: String,
+    user_id: String,
     description: String,
     price: f64,
     quantity: i64,
@@ -124,12 +125,14 @@ pub async fn add_item(
     Json(payload): Json<AddItemReq>,
 ) -> (StatusCode, Json<ApiResponse<Item>>) {
     let name: String = payload.name;
+    let user_id: String = payload.user_id;
     let description: String = payload.description;
     let price: f64 = payload.price;
     let quantity: i64 = payload.quantity;
 
     let mut bind_vars: HashMap<&str, Value> = HashMap::new();
     bind_vars.insert("name", Value::String(name.clone()));
+    bind_vars.insert("user_id", Value::String(user_id));
     bind_vars.insert("description", Value::String(description));
     bind_vars.insert("price", Value::Number(Number::from_f64(price).unwrap()));
     bind_vars.insert("quantity", Value::Number(Number::from(quantity)));
@@ -137,6 +140,7 @@ pub async fn add_item(
     let query = "
     INSERT {
         name: @name,
+        user_id: @user_id,
         description: @description,
         price: @price,
         quantity: @quantity

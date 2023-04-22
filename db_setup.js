@@ -6,49 +6,57 @@ const schemas = {
   User: {
     rule: {
       properties: {
-        first_name: { type : "string" },
-        last_name: { type: "string" },
-        email: { type: "string" },
-        password: { type: "string" },
-        role: { enum: ["CUSTOMER", "VENDOR"] }
+        first_name: { type: 'string' },
+        last_name: { type: 'string' },
+        email: { type: 'string' },
+        password: { type: 'string' },
+        role: { enum: ['CUSTOMER', 'VENDOR'] },
       },
       additionalProperties: false,
-      required: ["first_name", "last_name", "email", "password", "role"],
+      required: ['first_name', 'last_name', 'email', 'password', 'role'],
     },
-    level: "moderate",
-    message: "One or more user properties are missing or malformatted",
+    level: 'moderate',
+    message: 'One or more user properties are missing or malformatted',
   },
   Order: {
     rule: {
       properties: {
-        date: { type : "string" },
-        user_id: { type: "string" },
-        item_id: { type: "string" },
-        item_name: { type: "string" },
-        quantity: { type: "integer" },
-        price: { type: "number" },
+        user_id: { type: 'string' },
+        item_id: { type: 'string' },
+        item_name: { type: 'string' },
+        quantity: { type: 'integer' },
+        price: { type: 'number' },
+        date: { type: 'string' },
       },
       additionalProperties: false,
-      required: ["date", "user_id", "item_id", "item_name", "quantity", "price"],
+      required: [
+        'date',
+        'user_id',
+        'item_id',
+        'item_name',
+        'quantity',
+        'price',
+      ],
     },
-    level: "moderate",
-    message: "One or more order properties are missing or malformatted",
+    level: 'moderate',
+    message: 'One or more order properties are missing or malformatted',
   },
   Item: {
     rule: {
       properties: {
-        name: { type : "string" },
-        description: { type: "string" },
-        quantity: { type: "integer" },
-        price: { type: "number" },
+        name: { type: 'string' },
+        user_id: { type: 'string' },
+        description: { type: 'string' },
+        quantity: { type: 'integer' },
+        price: { type: 'number' },
       },
       additionalProperties: false,
-      required: ["name", "description", "quantity", "price"],
+      required: ['name', 'user_id', 'description', 'quantity', 'price'],
     },
-    level: "moderate",
-    message: "One or more item properties are missing or malformatted",
-  }
-}
+    level: 'moderate',
+    message: 'One or more item properties are missing or malformatted',
+  },
+};
 
 const createIndex = (collection, type, unique, sparse, field) => {
   var indexExists = db[collection]
@@ -69,7 +77,7 @@ const createIndex = (collection, type, unique, sparse, field) => {
       fields: [field],
     });
   }
-}
+};
 
 var dbs = db._databases();
 
@@ -89,7 +97,7 @@ var collectionsToCreate = ['User', 'Item', 'Order'];
 
 collectionsToCreate.forEach((name) => {
   if (!collectionsNames.includes(name)) {
-    db._create(name, { schema: schemas[name]});
+    db._create(name, { schema: schemas[name] });
   }
 });
 

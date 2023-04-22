@@ -1,6 +1,6 @@
-import Home from "../pages/Home.svelte";
-import Login from "../pages/Login.svelte";
-import Signup from "../pages/Signup.svelte";
+import Home from '../pages/Home.svelte';
+import Login from '../pages/Login.svelte';
+import Signup from '../pages/Signup.svelte';
 
 export interface IRoute {
     path: string;
@@ -8,7 +8,7 @@ export interface IRoute {
     component: any;
     props?: object | undefined;
     isProtected?: boolean;
-};
+}
 
 const routes: IRoute[] = [
     {
@@ -26,7 +26,7 @@ const routes: IRoute[] = [
         path: '/signup',
         name: 'Sign up',
         component: Signup,
-    }
+    },
 ];
 
 export default routes;

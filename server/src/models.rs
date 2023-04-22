@@ -50,6 +50,7 @@ pub struct Item {
     pub _rev: String,
     pub _id: String,
     pub name: String,
+    pub user_id: String,
     pub description: String,
     pub price: f64,
     pub quantity: i64,

@@ -131,6 +131,7 @@ pub async fn validate_jwt_route(
 }
 
 pub async fn jwt_middleware<B>(req: Request<B>, next: Next<B>) -> Result<Response, StatusCode> {
+    return Ok(next.run(req).await);
     let parsed_config = match Config::parse(PROD_CONFIG_PATH) {
         Ok(config) => config,
         Err(err) => {

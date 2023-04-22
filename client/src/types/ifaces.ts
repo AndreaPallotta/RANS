@@ -1,4 +1,4 @@
-import type { IUser, Item } from "./models";
+import type { IUser, Item } from './models';
 
 export interface AuthRes {
     user: IUser;
@@ -11,10 +11,10 @@ export interface DeleteItemReq {
 
 export interface DeleteItemRes {
     name: string;
-};
+}
 
 export type AddItemReq = {
-    user_id: string,
+    user_id: string;
 } & Partial<Item>;
 
 export type UpdateItemReq = {
@@ -23,8 +23,8 @@ export type UpdateItemReq = {
 
 export enum Role {
     CUSTOMER = 'CUSTOMER',
-    VENDOR = 'VENDOR'
-};
+    VENDOR = 'VENDOR',
+}
 
 export type AddOrderReq = {
     user_id: string;
@@ -33,8 +33,8 @@ export type AddOrderReq = {
     quantity: number;
     quantity_diff: number;
     price: number;
-}
+};
 
 export type DeleteOrderReq = {
     user_id: string;
-}
+};

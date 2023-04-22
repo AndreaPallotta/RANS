@@ -15,7 +15,9 @@ interface AxiosResponse<T> {
     error?: string;
 }
 
-const baseURL = import.meta.env.PROD ? 'http://rans.iste444.com:3000' : 'http://localhost:3000';
+const baseURL = import.meta.env.PROD
+    ? 'http://rans.iste444.com:3000'
+    : 'http://localhost:3000';
 
 export const client = axios.create({
     baseURL,
@@ -24,18 +26,26 @@ export const client = axios.create({
     },
 });
 
-client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    const token = get(jwtStore);
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-}, (err: any) => Promise.reject(err));
+client.interceptors.request.use(
+    (config: InternalAxiosRequestConfig) => {
+        const token = get(jwtStore);
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (err: any) => Promise.reject(err)
+);
 
 client.interceptors.response.use(
     (res: any) => res,
     async (err: any) => {
-        if (err.response && err.response.status === 401 && err.config && !err.config.__isRetry) {
+        if (
+            err.response &&
+            err.response.status === 401 &&
+            err.config &&
+            !err.config.__isRetry
+        ) {
             await refresh();
 
             const originalRequest = err.config;
@@ -46,7 +56,10 @@ client.interceptors.response.use(
     }
 );
 
-export async function axiosGet<T, B>(endpoint: string, params?: B): Promise<AxiosResponse<T>> {
+export async function axiosGet<T, B>(
+    endpoint: string,
+    params?: B
+): Promise<AxiosResponse<T>> {
     try {
         const { status, data } = await client.get(endpoint, { data: params });
         return { status, data };
@@ -57,9 +70,12 @@ export async function axiosGet<T, B>(endpoint: string, params?: B): Promise<Axio
         }
         return { error: `Request failed with unknown error: ${err.message}` };
     }
-};
+}
 
-export async function axiosPost<T, B>(endpoint: string, body: B): Promise<AxiosResponse<T>> {
+export async function axiosPost<T, B>(
+    endpoint: string,
+    body: B
+): Promise<AxiosResponse<T>> {
     try {
         const { status, data } = await client.post(endpoint, body);
         return { status, data };
@@ -70,9 +86,12 @@ export async function axiosPost<T, B>(endpoint: string, body: B): Promise<AxiosR
         }
         return { error: `Request failed with unknown error: ${err.message}` };
     }
-};
+}
 
-export async function axiosPut<T, B>(endpoint: string, body: B): Promise<AxiosResponse<T>> {
+export async function axiosPut<T, B>(
+    endpoint: string,
+    body: B
+): Promise<AxiosResponse<T>> {
     try {
         const { status, data } = await client.put(endpoint, body);
         return { status, data };
@@ -83,9 +102,12 @@ export async function axiosPut<T, B>(endpoint: string, body: B): Promise<AxiosRe
         }
         return { error: `Request failed with unknown error: ${err.message}` };
     }
-};
+}
 
-export async function axiosDelete<T, B>(endpoint: string, body: B): Promise<AxiosResponse<T>> {
+export async function axiosDelete<T, B>(
+    endpoint: string,
+    body: B
+): Promise<AxiosResponse<T>> {
     try {
         const { status, data } = await client.delete(endpoint, { data: body });
         return { status, data };
@@ -96,7 +118,7 @@ export async function axiosDelete<T, B>(endpoint: string, body: B): Promise<Axio
         }
         return { error: `Request failed with unknown error: ${err.message}` };
     }
-};
+}
 
 const refresh = async () => {
     const email = get(authStore).email;
@@ -106,7 +128,9 @@ const refresh = async () => {
         return;
     }
 
-    const response = await axiosGet<AuthRes, unknown>(`/api/auth/refresh/${email}`);
+    const response = await axiosGet<AuthRes, unknown>(
+        `/api/auth/refresh/${email}`
+    );
 
     if (!response.data.content || response.error) {
         clearState();
@@ -116,5 +140,5 @@ const refresh = async () => {
 
     try {
         setState(user, token);
-    } catch { }
-}
+    } catch {}
+};

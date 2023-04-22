@@ -1,14 +1,18 @@
-import authStore, { jwtStore } from "../store/auth.store";
-import type { IUser } from "../types/models";
+import authStore, { jwtStore } from '../store/auth.store';
+import type { IUser } from '../types/models';
 
-export function objectDifference<T, U extends Record<string, any>>(first: U, second: U, defaultValues: Partial<T> = {}): T {
+export function objectDifference<T, U extends Record<string, any>>(
+    first: U,
+    second: U,
+    defaultValues: Partial<T> = {}
+): T {
     return Object.entries(second).reduce((acc, [k, v]) => {
         if (first[k] !== v) {
             acc[k] = v;
         }
         return acc;
     }, defaultValues as T);
-};
+}
 
 type NumberLiteral = {
     [key: string]: number;
@@ -39,9 +43,13 @@ export const setState = (user: IUser, token: string) => {
 
     localStorage.setItem('jwt', token);
     localStorage.setItem('user', JSON.stringify(user));
-}
+};
 
-export const clearState = (clearStorage: boolean = true, redirect: boolean = true, path: string = '/login') => {
+export const clearState = (
+    clearStorage: boolean = true,
+    redirect: boolean = true,
+    path: string = '/login'
+) => {
     jwtStore.set(null);
     authStore.set(null);
 
@@ -52,4 +60,3 @@ export const clearState = (clearStorage: boolean = true, redirect: boolean = tru
 
     if (redirect) window.location.replace(path);
 };
-
