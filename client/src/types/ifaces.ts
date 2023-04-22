@@ -3,15 +3,15 @@ import type { IUser, Item } from './models';
 export interface AuthRes {
     user: IUser;
     token: string;
-}
+};
 
 export interface DeleteItemReq {
     id: string;
-}
+};
 
 export interface DeleteItemRes {
     name: string;
-}
+};
 
 export type AddItemReq = {
     user_id: string;
@@ -24,7 +24,7 @@ export type UpdateItemReq = {
 export enum Role {
     CUSTOMER = 'CUSTOMER',
     VENDOR = 'VENDOR',
-}
+};
 
 export type AddOrderReq = {
     user_id: string;

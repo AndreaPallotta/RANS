@@ -9,7 +9,7 @@ export interface IUser {
     email: string;
     password: string;
     role: Role;
-}
+};
 
 export interface Item {
     _key: string;
@@ -20,7 +20,7 @@ export interface Item {
     description: string;
     quantity: number;
     price: number;
-}
+};
 
 export interface IOrder {
     _key: string;
@@ -32,4 +32,4 @@ export interface IOrder {
     quantity: number;
     price: number;
     date: Date;
-}
+};
