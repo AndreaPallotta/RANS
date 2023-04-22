@@ -29,6 +29,7 @@ async fn main() {
                 server::models::User,
                 server::models::Order,
                 server::models::Item,
+                server::models::Role,
                 server::api::ErrorResponse,
                 server::requests::auth::LoginParams,
                 server::requests::auth::AuthRes,
