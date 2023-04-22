@@ -1,0 +1,829 @@
+{
+  "components": {
+    "schemas": {
+      "AddItemReq": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "format": "double",
+            "type": "number"
+          },
+          "quantity": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": ["name", "user_id", "description", "price", "quantity"],
+        "type": "object"
+      },
+      "AddOrderReq": {
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "item_name": {
+            "type": "string"
+          },
+          "price": {
+            "format": "double",
+            "type": "number"
+          },
+          "quantity": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "quantity_diff": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "item_id",
+          "item_name",
+          "quantity",
+          "price",
+          "quantity_diff"
+        ],
+        "type": "object"
+      },
+      "AuthRes": {
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "required": ["user", "token"],
+        "type": "object"
+      },
+      "DeleteItemReq": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": ["id"],
+        "type": "object"
+      },
+      "DeleteOrderReq": {
+        "properties": {
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": ["user_id"],
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error_msg": {
+            "type": "string"
+          }
+        },
+        "required": ["error_msg"],
+        "type": "object"
+      },
+      "GetItemReq": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": ["id"],
+        "type": "object"
+      },
+      "Item": {
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "_key": {
+            "type": "string"
+          },
+          "_rev": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "format": "double",
+            "type": "number"
+          },
+          "quantity": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "_key",
+          "_rev",
+          "_id",
+          "name",
+          "user_id",
+          "description",
+          "price",
+          "quantity"
+        ],
+        "type": "object"
+      },
+      "ItemQuantityUpdate": {
+        "properties": {
+          "quantity": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": ["quantity"],
+        "type": "object"
+      },
+      "ItemUpdate": {
+        "properties": {
+          "description": {
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "nullable": true,
+            "type": "string"
+          },
+          "price": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "quantity": {
+            "format": "int64",
+            "nullable": true,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "LoginParams": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": ["email", "password"],
+        "type": "object"
+      },
+      "Order": {
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "_key": {
+            "type": "string"
+          },
+          "_rev": {
+            "type": "string"
+          },
+          "date": {
+            "$ref": "#/components/schemas/NaiveDateTime"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "item_name": {
+            "type": "string"
+          },
+          "price": {
+            "format": "double",
+            "type": "number"
+          },
+          "quantity": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "_key",
+          "_rev",
+          "_id",
+          "date",
+          "user_id",
+          "item_id",
+          "item_name",
+          "quantity",
+          "price"
+        ],
+        "type": "object"
+      },
+      "SignupParams": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": ["first_name", "last_name", "email", "password", "role"],
+        "type": "object"
+      },
+      "UpdateItemReq": {
+        "properties": {
+          "description": {
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "nullable": true,
+            "type": "string"
+          },
+          "price": {
+            "format": "double",
+            "nullable": true,
+            "type": "number"
+          },
+          "quantity": {
+            "format": "int64",
+            "nullable": true,
+            "type": "integer"
+          }
+        },
+        "required": ["id"],
+        "type": "object"
+      },
+      "User": {
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "_key": {
+            "type": "string"
+          },
+          "_rev": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          }
+        },
+        "required": [
+          "_key",
+          "_rev",
+          "_id",
+          "first_name",
+          "last_name",
+          "email",
+          "password"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "email": "andreapallotta.dev@gmail.com",
+      "name": "Andrea Pallotta"
+    },
+    "description": "Secure REST API written in Rust & Axum",
+    "license": {
+      "name": ""
+    },
+    "title": "server",
+    "version": "1.0.0"
+  },
+  "openapi": "3.0.3",
+  "paths": {
+    "/api/add_item": {
+      "post": {
+        "operationId": "add_item",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddItemReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            },
+            "description": "Return created item"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error in the database query"
+          }
+        },
+        "tags": ["server::requests::items"]
+      }
+    },
+    "/api/add_order": {
+      "post": {
+        "operationId": "add_order",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddOrderReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                }
+              }
+            },
+            "description": "Return created order"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error creating order. Missing or malformatted attributes"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error querying the database"
+          }
+        },
+        "tags": ["server::requests::orders"]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "handle_login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginParams"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRes"
+                }
+              }
+            },
+            "description": "Return authenticated user"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Credentials are wrong"
+          }
+        },
+        "tags": ["server::requests::auth"]
+      }
+    },
+    "/api/auth/refresh": {
+      "get": {
+        "operationId": "refresh",
+        "parameters": [
+          {
+            "description": "user email",
+            "in": "path",
+            "name": "email",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRes"
+                }
+              }
+            },
+            "description": "Return authenticated user"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error generating jwt"
+          }
+        },
+        "tags": ["server::requests::jwt"]
+      }
+    },
+    "/api/auth/signup": {
+      "post": {
+        "operationId": "handle_signup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupParams"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRes"
+                }
+              }
+            },
+            "description": "Return authenticated user"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Credentials are wrong"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error during query/hashing"
+          }
+        },
+        "tags": ["server::requests::auth"]
+      }
+    },
+    "/api/delete_item": {
+      "delete": {
+        "operationId": "delete_item",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteItemReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Return deleted item name"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error deleting item. Item does not exist in database"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error in the database query"
+          }
+        },
+        "tags": ["server::requests::items"]
+      }
+    },
+    "/api/delete_orders": {
+      "delete": {
+        "operationId": "delete_orders",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteOrderReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                }
+              }
+            },
+            "description": "Returns remaining orders"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error querying the database"
+          }
+        },
+        "tags": ["server::requests::orders"]
+      }
+    },
+    "/api/edit_item": {
+      "put": {
+        "operationId": "edit_item",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateItemReq"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            },
+            "description": "Return created item"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error editing item. Item does not exist in database"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error in the database query"
+          }
+        },
+        "tags": ["server::requests::items"]
+      }
+    },
+    "/api/get_item/{name}": {
+      "get": {
+        "operationId": "get_item",
+        "parameters": [
+          {
+            "description": "Item Name",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Item"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Return list of items that loosely match the name"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "No results found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error in the database query"
+          }
+        },
+        "tags": ["server::requests::items"]
+      }
+    },
+    "/api/get_items": {
+      "get": {
+        "operationId": "get_items",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Item"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Return all items in the database"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error in the database query"
+          }
+        },
+        "tags": ["server::requests::items"]
+      }
+    },
+    "/api/get_orders/{user_id}": {
+      "get": {
+        "operationId": "get_orders",
+        "parameters": [
+          {
+            "description": "User ID associated with the order",
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Order"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Return list of orders based on user id"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "No orders found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Error in the database query"
+          }
+        },
+        "tags": ["server::requests::orders"]
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "REST API for RANS tech stack",
+      "name": "RANS API"
+    }
+  ]
+}

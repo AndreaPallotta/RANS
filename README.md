@@ -91,6 +91,18 @@ TODO: Add content description here.
 
 ---
 
+## Database Diagram
+
+![ER Diagram](./docs/er_diagram.png)
+
+> NOTE: ArangoDB is an hybrid GraphQL & NoSQL DBMS. The diagram above includes relations that are not directly found in the database but that might be useful to understand the models.
+
+---
+
+## API Documentation
+
+---
+
 ## Above & Beyond
 
 Following is a list of what I believe is above and beyond the requirements of the project:
