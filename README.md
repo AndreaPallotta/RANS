@@ -1,9 +1,5 @@
 # RANS - E-Commerce Platform Tech Stack
 
-## Content Description
-
-TODO: Add content description here.
-
 ---
 
 ## Stack Technologies
@@ -14,6 +10,21 @@ TODO: Add content description here.
 | **ArangoDB** | `3.10`  | _Database_                   | ArangoDB is a flexible multi-model database that supports key-value, document, and graph data models, and provides built-in horizontal scaling and sharding capabilities |
 | **Nginx**    | `1.24`  | _Web Server & Reverse Proxy_ | Nginx is a fast and reliable open-source web server and reverse proxy used for serving static and dynamic content at scale.                                              |
 | **Svelte**   | `3.58`  | _Frontend_                   | Svelte is a modern front-end framework that compiles to highly efficient JavaScript, making it easy to build performant and responsive user interfaces                   |
+
+---
+
+## Additional Packages
+
+This is a list of packages installed automatically during the setup
+
+- **ansible-core** (dnf)
+- **ansible.posix** (ansible-galaxy package)
+- **arangosh** (dnf)
+- **cargo** (independent distribution)
+- **nodejs:18** (dnf)
+- **pexpect** (pip package)
+- **python3.9** (dnf)
+- **svelte** (npm package)
 
 ---
 
@@ -99,9 +110,16 @@ TODO: Add content description here.
 
 The [db_backup](./db_backup/) folder contains sample data that can be imported in ArangoDB. It is currently done automatically on setup. If you want to import it manually, run the following command:
 
+```bash
+arangorestore --server.database project2 --input-directory db_dump
+```
+
+> NOTE: Make sure the database name exists. The command will override existing collections.
+
+To recreate the dump of the database run:
 
 ```bash
-(sudo su - arangodb -c "arangoimport --file ./db_backup/dump.data.json.gz --type json ")
+arangodump --output-directory=db_dump --server.database=project2
 ```
 
 ---

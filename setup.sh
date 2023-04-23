@@ -179,7 +179,6 @@ sudo dnf module install nodejs:18 -y
 check_deps "ansible-core"
 check_deps "nodejs"
 setup_python "3.9"
-check_deps "ansible-core"
 pip3 install pexpect
 ansible-galaxy collection install ansible.posix
 install_npm "svelte"
@@ -212,7 +211,9 @@ if ! rpm -q "cargo" &> /dev/null; then
     echo "Successfully installed cargo!"
 fi
 
-sudo chmod a+x ./db_setup.js && ./db_setup.js
+sudo chmod a+x db_setup.js
+arangosh --javascript.execute db_setup.js
+arangorestore --server.database project2 --input-directory db_dump
 
 echo
 echo "============ Set Up Files ============"
