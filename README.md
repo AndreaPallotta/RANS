@@ -97,6 +97,13 @@ TODO: Add content description here.
 
 > NOTE: ArangoDB is an hybrid GraphQL & NoSQL DBMS. The diagram above includes relations that are not directly found in the database but that might be useful to understand the models.
 
+The [db_backup](./db_backup/) folder contains sample data that can be imported in ArangoDB. It is currently done automatically on setup. If you want to import it manually, run the following command:
+
+
+```bash
+(sudo su - arangodb -c "arangoimport --file ./db_backup/dump.data.json.gz --type json ")
+```
+
 ---
 
 ## API Documentation
