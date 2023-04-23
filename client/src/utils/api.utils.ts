@@ -29,8 +29,12 @@ export const client = axios.create({
 client.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         const token = get(jwtStore);
+        const user = get(authStore);
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+        }
+        if (user && user._key) {
+            config.headers.user_id = user._key;
         }
         return config;
     },
@@ -140,5 +144,5 @@ const refresh = async () => {
 
     try {
         setState(user, token);
-    } catch {}
+    } catch { }
 };

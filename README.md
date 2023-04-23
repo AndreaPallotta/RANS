@@ -102,7 +102,7 @@ This is a list of packages installed automatically during the setup
 
 ---
 
-## Database Diagram
+## Database
 
 ![ER Diagram](./docs/er_diagram.png)
 
@@ -122,6 +122,14 @@ To recreate the dump of the database run:
 arangodump --output-directory=db_dump --server.database=project2
 ```
 
+Since all passwords are hashed, this is a table with credentials for the users generated from the database dump
+
+| email             | password   |
+| ----------------- | ---------- |
+| jstarb@gmail.com  | Password.1 |
+| sales@baba.com    | Password.2 |
+| sales@nutella.com | Password.3 |
+
 ---
 
 ## API Documentation
@@ -129,6 +137,7 @@ arangodump --output-directory=db_dump --server.database=project2
 There are currently two ways to access the documentation:
 
 - Remote (Redocly)
+
   1. Navigate to <https:/nervous-duck-98.redoc.ly>
   2. Sign In or create a new account
 
