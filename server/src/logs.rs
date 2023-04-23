@@ -30,7 +30,7 @@ impl Logger {
 
 impl Log for Logger {
     fn enabled(&self, metadata: &Metadata) -> bool {
-        metadata.level() <= Level::Info
+        metadata.level() <= Level::Info && metadata.target() != "surf::middleware::logger::native"
     }
 
     fn flush(&self) {}
