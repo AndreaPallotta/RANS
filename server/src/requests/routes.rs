@@ -86,19 +86,19 @@ pub async fn create_routes(database: Database, path: &str, server: &ServerConfig
                     let uri = request.uri().path();
                     let body = request.body();
                     println!("Request: {} {}", method, uri);
-                    info!("{}, {}, {:?}", method, uri, body);
+                    info!("REQUEST - {}, {}, {:?}", method, uri, body);
                     debug!("{:?}, {:?}", request, span);
                 })
                 .on_response(|response: &Response, latency: Duration, span: &Span| {
                     let status = response.status().as_u16();
                     let body = response.body();
                     println!("{} Response generated in {}ms", status, latency.as_millis());
-                    info!("{}, {:?}, {}ms", status, body, latency.as_millis());
+                    info!("RESPONSE - {}, {:?}, {}ms", status, body, latency.as_millis());
                     debug!("{:?}, {:?}, {:?}", response, latency, span);
                 })
                 .on_body_chunk(|chunk: &Bytes, latency: Duration, span: &Span| {
                     debug!(
-                        "sending {} took {}ms: {:?}",
+                        "CHUNK - sending {} took {}ms: {:?}",
                         chunk.len(),
                         latency.as_millis(),
                         span
@@ -121,7 +121,7 @@ pub async fn create_routes(database: Database, path: &str, server: &ServerConfig
                             error,
                             latency.as_millis()
                         );
-                        error!("{:?}, {}ms", error, latency.as_millis());
+                        error!("FAILURE - {:?}, {}ms", error, latency.as_millis());
                     },
                 ),
         )
