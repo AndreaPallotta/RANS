@@ -1,6 +1,6 @@
 use axum::Json;
 use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 use utoipa::ToSchema;
 
 #[derive(Deserialize, Serialize, JsonSchema, ToSchema)]
@@ -16,7 +16,9 @@ pub enum ApiResponse<T> {
 }
 
 pub fn generate_error<T>(msg: &str) -> Json<ApiResponse<T>> {
-    Json(ApiResponse::Error(ErrorResponse {
-        error_msg: msg.to_string(),
-    }))
+    Json(
+        ApiResponse::Error(ErrorResponse {
+            error_msg: msg.to_string(),
+        })
+    )
 }

@@ -1,8 +1,8 @@
 use axum::Router;
 use server::constants::PROD_CONFIG_PATH;
-use server::db::{DBConnector, Database, DatabaseError};
+use server::db::{ DBConnector, Database, DatabaseError };
 use server::requests::routes::create_routes;
-use server::toml_env::{Config, DatabaseConfig};
+use server::toml_env::{ Config, DatabaseConfig };
 use std::net::SocketAddr;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -44,9 +44,7 @@ async fn main() {
                 server::requests::orders::ItemQuantityUpdate
             )
         ),
-        tags(
-            (name = "RANS API", description = "REST API for RANS tech stack")
-        )
+        tags((name = "RANS API", description = "REST API for RANS tech stack"))
     )]
     struct ApiDoc;
 
@@ -72,17 +70,14 @@ async fn main() {
 
     println!("Successfully connected to database");
 
-    let app: Router = create_routes(db, config.log.path.as_str(), &config.server)
-        .await
-        .merge(SwaggerUi::new("/api/v1").url("/api-docs/openapi.json", ApiDoc::openapi()));
+    let app: Router = create_routes(db, config.log.path.as_str(), &config.server).await.merge(
+        SwaggerUi::new("/api/v1").url("/api-docs/openapi.json", ApiDoc::openapi())
+    );
 
     let addr: SocketAddr = SocketAddr::from(config.server.socket_addr());
     tracing::info!("listening on {}", addr);
     println!("Server listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .expect("Server failed to start");
+    axum::Server::bind(&addr).serve(app.into_make_service()).await.expect("Server failed to start");
 }
 
 async fn get_db(config: DatabaseConfig) -> Result<Database, Box<DatabaseError>> {

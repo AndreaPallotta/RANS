@@ -1,5 +1,5 @@
 use crate::{
-    api::{generate_error, ApiResponse},
+    api::{ generate_error, ApiResponse },
     constants::PROD_CONFIG_PATH,
     db::Database,
     models::User,
@@ -7,17 +7,22 @@ use crate::{
 };
 use axum::{
     extract::Path,
-    http::{Request, StatusCode},
+    http::{ Request, StatusCode },
     middleware::Next,
     response::Response,
-    Extension, Json,
+    Extension,
+    Json,
 };
 use jsonwebtoken::{
-    decode, encode,
-    errors::{Error, ErrorKind},
-    DecodingKey, EncodingKey, Header, Validation,
+    decode,
+    encode,
+    errors::{ Error, ErrorKind },
+    DecodingKey,
+    EncodingKey,
+    Header,
+    Validation,
 };
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 use std::collections::HashMap;
 use utoipa::ToSchema;
 
@@ -42,11 +47,7 @@ pub fn generate_jwt(sub: &String, secret: &String) -> Result<String, jsonwebtoke
 
 pub fn validate_jwt(token: &String, secret: &String) -> Result<bool, Error> {
     let validation = Validation::new(jsonwebtoken::Algorithm::HS256);
-    let result = decode::<Claims>(
-        &token,
-        &DecodingKey::from_secret(secret.as_ref()),
-        &validation,
-    );
+    let result = decode::<Claims>(&token, &DecodingKey::from_secret(secret.as_ref()), &validation);
 
     match result {
         Ok(_) => Ok(true),
@@ -63,9 +64,7 @@ pub fn validate_jwt(token: &String, secret: &String) -> Result<bool, Error> {
 #[utoipa::path(
     get,
     path = "/api/auth/refresh",
-    params(
-        ("email" = String, Path, description = "user email")
-    ),
+    params(("email" = String, Path, description = "user email")),
     responses(
         (status = 200, description = "Return authenticated user", body = AuthRes),
         (status = 500, description = "Error generating jwt", body = ErrorResponse)
@@ -74,15 +73,13 @@ pub fn validate_jwt(token: &String, secret: &String) -> Result<bool, Error> {
 pub async fn refresh(
     Extension(database): Extension<Database>,
     Extension(secret): Extension<String>,
-    Path(email): Path<String>,
+    Path(email): Path<String>
 ) -> (StatusCode, Json<ApiResponse<AuthRes>>) {
-    let users: Vec<User> = database
-        .arango_db
+    let users: Vec<User> = database.arango_db
         .aql_bind_vars(
             "FOR user IN User FILTER user.email == @email RETURN user",
-            HashMap::from([("email", email.to_owned().into())]),
-        )
-        .await
+            HashMap::from([("email", email.to_owned().into())])
+        ).await
         .unwrap();
 
     let token = generate_jwt(&email, &secret);
@@ -97,11 +94,8 @@ pub async fn refresh(
                     )
                 },
                 |user| {
-                    (
-                        StatusCode::OK,
-                        Json(ApiResponse::Success(AuthRes::new(user.to_owned(), jwt))),
-                    )
-                },
+                    (StatusCode::OK, Json(ApiResponse::Success(AuthRes::new(user.to_owned(), jwt))))
+                }
             )
         })
         .unwrap_or_else(|e| {
@@ -116,16 +110,13 @@ pub async fn refresh(
 
 pub async fn validate_jwt_route(
     Extension(secret): Extension<String>,
-    Path(token): Path<String>,
+    Path(token): Path<String>
 ) -> (StatusCode, Json<ApiResponse<bool>>) {
     match validate_jwt(&token, &secret) {
         Ok(_) => (StatusCode::OK, Json(ApiResponse::Success(true))),
         Err(e) => {
             eprintln!("Error validating JWT token: {:?}", e.to_string());
-            (
-                StatusCode::UNAUTHORIZED,
-                generate_error("Invalid JWT Token"),
-            )
+            (StatusCode::UNAUTHORIZED, generate_error("Invalid JWT Token"))
         }
     }
 }
@@ -158,15 +149,18 @@ pub async fn jwt_middleware<B>(req: Request<B>, next: Next<B>) -> Result<Respons
     };
 
     match token {
-        Some(tok) => match validate_jwt(&tok.to_string(), &secret) {
-            Ok(_) => return Ok(next.run(req).await),
-            Err(e) => {
-                eprintln!("Error validating JWT token: {:?}", e.to_string());
-                return Err(StatusCode::UNAUTHORIZED);
+        Some(tok) =>
+            match validate_jwt(&tok.to_string(), &secret) {
+                Ok(_) => {
+                    return Ok(next.run(req).await);
+                }
+                Err(e) => {
+                    eprintln!("Error validating JWT token: {:?}", e.to_string());
+                    return Err(StatusCode::UNAUTHORIZED);
+                }
             }
-        },
         None => {
             return Err(StatusCode::UNAUTHORIZED);
         }
-    };
+    }
 }

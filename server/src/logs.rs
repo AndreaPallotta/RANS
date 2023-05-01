@@ -1,9 +1,9 @@
 use chrono::Utc;
-use log::{Level, LevelFilter, Log, Metadata, Record};
+use log::{ Level, LevelFilter, Log, Metadata, Record };
 use std::io::Write;
-use std::{fs, path::PathBuf};
+use std::{ fs, path::PathBuf };
 
-use crate::constants::{ERROR_LOG_FILE, INFO_LOG_FILE, LOG_TS_FORMAT};
+use crate::constants::{ ERROR_LOG_FILE, INFO_LOG_FILE, LOG_TS_FORMAT };
 
 struct Logger {
     info_file: fs::File,
@@ -58,12 +58,7 @@ pub fn set_log(path: &str, level: LevelFilter) {
 }
 
 fn create_new_file(name: &PathBuf) -> fs::File {
-    fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(name)
-        .ok()
-        .unwrap()
+    fs::OpenOptions::new().create(true).append(true).open(name).ok().unwrap()
 }
 
 fn create_folder_path(path: &PathBuf) {

@@ -1,5 +1,8 @@
 use arangors::{
-    uclient::surf::SurfClient, ArangoError, Connection, Database as ArangoDatabase,
+    uclient::surf::SurfClient,
+    ArangoError,
+    Connection,
+    Database as ArangoDatabase,
     GenericConnection,
 };
 
@@ -32,22 +35,19 @@ impl Database {
         let arango_conn: GenericConnection<SurfClient> = Connection::establish_basic_auth(
             &connector.db_url,
             &connector.db_username,
-            &connector.db_password,
-        )
-        .await
-        .map_err(|err| {
-            DatabaseError::ConnectionError(format!(
-                "Failed to connect to database {}",
-                err.to_string()
-            ))
+            &connector.db_password
+        ).await.map_err(|err| {
+            DatabaseError::ConnectionError(
+                format!("Failed to connect to database {}", err.to_string())
+            )
         })?;
 
-        let arango_db: ArangoDatabase<SurfClient> =
-            arango_conn.db(&connector.db_name).await.map_err(|err| {
-                DatabaseError::ConnectionError(format!(
-                    "Failed to connect to database {}",
-                    err.to_string()
-                ))
+        let arango_db: ArangoDatabase<SurfClient> = arango_conn
+            .db(&connector.db_name).await
+            .map_err(|err| {
+                DatabaseError::ConnectionError(
+                    format!("Failed to connect to database {}", err.to_string())
+                )
             })?;
 
         Ok(Database { arango_db })

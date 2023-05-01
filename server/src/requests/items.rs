@@ -1,12 +1,12 @@
-use crate::api::{generate_error, ApiResponse};
+use crate::api::{ generate_error, ApiResponse };
 use crate::db::Database;
 use crate::models::Item;
-use arangors::document::options::{RemoveOptions, UpdateOptions};
+use arangors::document::options::{ RemoveOptions, UpdateOptions };
 use axum::extract::Path;
 use axum::Extension;
-use axum::{http::StatusCode, Json};
-use serde::{Deserialize, Serialize};
-use serde_json::{json, Number, Value};
+use axum::{ http::StatusCode, Json };
+use serde::{ Deserialize, Serialize };
+use serde_json::{ json, Number, Value };
 use std::collections::HashMap;
 use urlencoding::decode;
 use utoipa::ToSchema;
@@ -65,14 +65,19 @@ pub struct ItemUpdate {
 )]
 pub async fn get_item(
     Extension(database): Extension<Database>,
-    Path(name): Path<String>,
+    Path(name): Path<String>
 ) -> (StatusCode, Json<ApiResponse<Vec<Item>>>) {
     let decoded_name = decode(name.as_str()).expect("UTF-8");
 
     let mut bind_vars: HashMap<&str, Value> = HashMap::new();
     bind_vars.insert("name", Value::String(decoded_name.into_owned()));
 
-    match database.arango_db.aql_bind_vars("FOR item IN Item FILTER LOWER(item.name) LIKE CONCAT('%', LOWER(@name), '%') RETURN item", bind_vars).await {
+    match
+        database.arango_db.aql_bind_vars(
+            "FOR item IN Item FILTER LOWER(item.name) LIKE CONCAT('%', LOWER(@name), '%') RETURN item",
+            bind_vars
+        ).await
+    {
         Ok(items) => {
             if items.is_empty() {
                 (StatusCode::NOT_FOUND, generate_error("No Item Matches Provided Name"))
@@ -81,7 +86,10 @@ pub async fn get_item(
             }
         }
         Err(e) => {
-            (StatusCode::INTERNAL_SERVER_ERROR, generate_error(format!("Error getting item: {}", e.to_string()).as_str()))
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                generate_error(format!("Error getting item: {}", e.to_string()).as_str()),
+            )
         }
     }
 }
@@ -94,19 +102,17 @@ pub async fn get_item(
         (status = 500, description = "Error in the database query", body = ErrorResponse)
     )
 )]
-pub async fn get_items(
-    Extension(database): Extension<Database>,
-) -> (StatusCode, Json<ApiResponse<Vec<Item>>>) {
-    match database
-        .arango_db
-        .aql_str("FOR item IN Item RETURN item")
-        .await
-    {
+pub async fn get_items(Extension(database): Extension<Database>) -> (
+    StatusCode,
+    Json<ApiResponse<Vec<Item>>>,
+) {
+    match database.arango_db.aql_str("FOR item IN Item RETURN item").await {
         Ok(items) => (StatusCode::OK, Json(ApiResponse::Success(items))),
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            generate_error(format!("Error getting items: {}", e.to_string()).as_str()),
-        ),
+        Err(e) =>
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                generate_error(format!("Error getting items: {}", e.to_string()).as_str()),
+            ),
     }
 }
 
@@ -116,13 +122,17 @@ pub async fn get_items(
     request_body = AddItemReq,
     responses(
         (status = 200, description = "Return created item", body = Item),
-        (status = 500, description = "Error parsing request body. Missing or malformatted attributes", body = ErrorResponse),
+        (
+            status = 500,
+            description = "Error parsing request body. Missing or malformatted attributes",
+            body = ErrorResponse,
+        ),
         (status = 500, description = "Error in the database query", body = ErrorResponse)
     )
 )]
 pub async fn add_item(
     Extension(database): Extension<Database>,
-    Json(payload): Json<AddItemReq>,
+    Json(payload): Json<AddItemReq>
 ) -> (StatusCode, Json<ApiResponse<Item>>) {
     let name: String = payload.name;
     let user_id: String = payload.user_id;
@@ -137,7 +147,8 @@ pub async fn add_item(
     bind_vars.insert("price", Value::Number(Number::from_f64(price).unwrap()));
     bind_vars.insert("quantity", Value::Number(Number::from(quantity)));
 
-    let query = "
+    let query =
+        "
     INSERT {
         name: @name,
         user_id: @user_id,
@@ -148,18 +159,17 @@ pub async fn add_item(
     RETURN NEW
     ";
 
-    let result: Result<Vec<Item>, arangors::ClientError> =
-        database.arango_db.aql_bind_vars(query, bind_vars).await;
+    let result: Result<Vec<Item>, arangors::ClientError> = database.arango_db.aql_bind_vars(
+        query,
+        bind_vars
+    ).await;
 
     match result {
         Ok(items) => {
             if let Some(item) = items.first() {
                 (StatusCode::OK, Json(ApiResponse::Success(item.clone())))
             } else {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    generate_error("Error creating item"),
-                )
+                (StatusCode::INTERNAL_SERVER_ERROR, generate_error("Error creating item"))
             }
         }
         Err(e) => {
@@ -178,13 +188,17 @@ pub async fn add_item(
     request_body = UpdateItemReq,
     responses(
         (status = 200, description = "Return created item", body = Item),
-        (status = 404, description = "Error editing item. Item does not exist in database", body = ErrorResponse),
+        (
+            status = 404,
+            description = "Error editing item. Item does not exist in database",
+            body = ErrorResponse,
+        ),
         (status = 500, description = "Error in the database query", body = ErrorResponse)
     )
 )]
 pub async fn edit_item(
     Extension(database): Extension<Database>,
-    Json(payload): Json<UpdateItemReq>,
+    Json(payload): Json<UpdateItemReq>
 ) -> (StatusCode, Json<ApiResponse<Value>>) {
     let id = payload.id;
     let name = payload.name;
@@ -202,23 +216,18 @@ pub async fn edit_item(
     let patch = json!(&params);
 
     let collection = database.arango_db.collection("Item").await.unwrap();
-    let response = collection
-        .update_document(
-            id.to_owned().as_str(),
-            patch,
-            UpdateOptions::builder().return_new(true).build(),
-        )
-        .await;
+    let response = collection.update_document(
+        id.to_owned().as_str(),
+        patch,
+        UpdateOptions::builder().return_new(true).build()
+    ).await;
 
     match response {
         Ok(response) => {
             if let Some(item) = response.new_doc() {
                 (StatusCode::OK, Json(ApiResponse::Success(item.clone())))
             } else {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    generate_error("Error updating item"),
-                )
+                (StatusCode::INTERNAL_SERVER_ERROR, generate_error("Error updating item"))
             }
         }
         Err(e) => {
@@ -237,42 +246,40 @@ pub async fn edit_item(
     request_body = DeleteItemReq,
     responses(
         (status = 200, description = "Return deleted item name", body = String),
-        (status = 404, description = "Error deleting item. Item does not exist in database", body = ErrorResponse),
+        (
+            status = 404,
+            description = "Error deleting item. Item does not exist in database",
+            body = ErrorResponse,
+        ),
         (status = 500, description = "Error in the database query", body = ErrorResponse)
     )
 )]
 pub async fn delete_item(
     Extension(database): Extension<Database>,
-    Json(payload): Json<DeleteItemReq>,
+    Json(payload): Json<DeleteItemReq>
 ) -> (StatusCode, Json<ApiResponse<Value>>) {
     let id = payload.id;
     let collection = database.arango_db.collection("Item").await.unwrap();
 
-    match collection
-        .remove_document(
+    match
+        collection.remove_document(
             id.to_owned().as_str(),
             RemoveOptions::builder().return_old(true).build(),
-            None,
-        )
-        .await
+            None
+        ).await
     {
         Ok(res) => {
             if let Some(old_doc) = res.old_doc() {
                 let item: &Item = old_doc;
-                (
-                    StatusCode::OK,
-                    Json(ApiResponse::Success(json!({ "name": item.name }))),
-                )
+                (StatusCode::OK, Json(ApiResponse::Success(json!({ "name": item.name }))))
             } else {
-                (
-                    StatusCode::NOT_FOUND,
-                    generate_error("Item to delete not found"),
-                )
+                (StatusCode::NOT_FOUND, generate_error("Item to delete not found"))
             }
         }
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            generate_error(format!("Error deleting item: {}", e.to_string()).as_str()),
-        ),
+        Err(e) =>
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                generate_error(format!("Error deleting item: {}", e.to_string()).as_str()),
+            ),
     }
 }

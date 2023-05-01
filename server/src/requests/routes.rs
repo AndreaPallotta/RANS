@@ -1,23 +1,24 @@
 use std::time::Duration;
 use crate::logs::set_log;
-use crate::requests::{auth, items, jwt, orders};
-use crate::{
-    db::Database,
-    toml_env::{Environment, ServerConfig},
-};
+use crate::requests::{ auth, items, jwt, orders };
+use crate::{ db::Database, toml_env::{ Environment, ServerConfig } };
 use axum::http::header;
 use axum::{
-    body::{Body, Bytes},
-    http::{HeaderMap, HeaderName, Request, Method},
+    body::{ Body, Bytes },
+    http::{ HeaderMap, HeaderName, Request, Method },
     middleware,
     response::Response,
-    routing::{delete, get, post, put},
-    Extension, Router,
+    routing::{ delete, get, post, put },
+    Extension,
+    Router,
 };
-use log::{debug, error, info, LevelFilter};
+use log::{ debug, error, info, LevelFilter };
 use tower_http::{
-    classify::ServerErrorsFailureClass, compression::CompressionLayer, cors::CorsLayer,
-    propagate_header::PropagateHeaderLayer, trace::TraceLayer,
+    classify::ServerErrorsFailureClass,
+    compression::CompressionLayer,
+    cors::CorsLayer,
+    propagate_header::PropagateHeaderLayer,
+    trace::TraceLayer,
     validate_request::ValidateRequestHeaderLayer,
 };
 use tracing::Span;
@@ -39,42 +40,40 @@ pub async fn create_routes(database: Database, path: &str, server: &ServerConfig
         .route("/api/auth/refresh/:email", get(jwt::refresh))
         .route(
             "/api/get_item/:name",
-            get(items::get_item).route_layer(middleware::from_fn(jwt::jwt_middleware)),
+            get(items::get_item).route_layer(middleware::from_fn(jwt::jwt_middleware))
         )
         .route(
             "/api/get_items",
-            get(items::get_items).route_layer(middleware::from_fn(jwt::jwt_middleware)),
+            get(items::get_items).route_layer(middleware::from_fn(jwt::jwt_middleware))
         )
         .route(
             "/api/add_item",
-            post(items::add_item).route_layer(middleware::from_fn(jwt::jwt_middleware)),
+            post(items::add_item).route_layer(middleware::from_fn(jwt::jwt_middleware))
         )
         .route(
             "/api/edit_item",
-            put(items::edit_item).route_layer(middleware::from_fn(jwt::jwt_middleware)),
+            put(items::edit_item).route_layer(middleware::from_fn(jwt::jwt_middleware))
         )
         .route(
             "/api/delete_item",
-            delete(items::delete_item).route_layer(middleware::from_fn(jwt::jwt_middleware)),
+            delete(items::delete_item).route_layer(middleware::from_fn(jwt::jwt_middleware))
         )
         .route(
             "/api/get_orders/:user_id",
-            get(orders::get_orders).route_layer(middleware::from_fn(jwt::jwt_middleware)),
+            get(orders::get_orders).route_layer(middleware::from_fn(jwt::jwt_middleware))
         )
         .route(
             "/api/add_order",
-            post(orders::add_order).route_layer(middleware::from_fn(jwt::jwt_middleware)),
+            post(orders::add_order).route_layer(middleware::from_fn(jwt::jwt_middleware))
         )
         .route(
             "/api/delete_orders",
-            delete(orders::delete_orders).route_layer(middleware::from_fn(jwt::jwt_middleware)),
+            delete(orders::delete_orders).route_layer(middleware::from_fn(jwt::jwt_middleware))
         )
         .layer(Extension(database))
         .layer(Extension(server.secret.clone()))
         .layer(CompressionLayer::new())
-        .layer(PropagateHeaderLayer::new(HeaderName::from_static(
-            "x-request-id",
-        )))
+        .layer(PropagateHeaderLayer::new(HeaderName::from_static("x-request-id")))
         .layer(ValidateRequestHeaderLayer::accept("application/json"))
         .layer(cors)
         .layer(
@@ -114,25 +113,21 @@ pub async fn create_routes(database: Database, path: &str, server: &ServerConfig
                         span
                     )
                 })
-                .on_eos(
-                    |trailers: Option<&HeaderMap>, stream_duration: Duration, span: &Span| {
-                        debug!(
-                            "Stream closed after {:?}ms, {:?}, {:?}",
-                            stream_duration.as_millis(),
-                            trailers.unwrap(),
-                            span
-                        );
-                    },
-                )
-                .on_failure(
-                    |error: ServerErrorsFailureClass, latency: Duration, _span: &Span| {
-                        eprintln!(
-                            "Request failed with error {:?} after {}ms",
-                            error,
-                            latency.as_millis()
-                        );
-                        error!("FAILURE - {:?} | {}ms", error, latency.as_millis());
-                    },
-                ),
+                .on_eos(|trailers: Option<&HeaderMap>, stream_duration: Duration, span: &Span| {
+                    debug!(
+                        "Stream closed after {:?}ms, {:?}, {:?}",
+                        stream_duration.as_millis(),
+                        trailers.unwrap(),
+                        span
+                    );
+                })
+                .on_failure(|error: ServerErrorsFailureClass, latency: Duration, _span: &Span| {
+                    eprintln!(
+                        "Request failed with error {:?} after {}ms",
+                        error,
+                        latency.as_millis()
+                    );
+                    error!("FAILURE - {:?} | {}ms", error, latency.as_millis());
+                })
         )
 }

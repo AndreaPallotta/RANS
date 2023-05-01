@@ -1,5 +1,23 @@
 # RANS - E-Commerce Platform Tech Stack
 
+## Remote Access via RLES
+
+To access the already deployed stack using RLES:
+
+1. Make sure the machine is reachable:
+
+   ```bash
+   ping 192.168.44.11
+   ```
+
+2. (OPTIONAL) Add the following line to the top of the `/etc/resolv.conf` file to resolve the DNS name:
+
+   ```bash
+   namespace 192.168.44.1
+   ```
+
+3. Access the website by navigating to <http://rans.iste444.com> _(only if step 2 was completed)_ or <http://192.168.44.11>
+
 ---
 
 ## Stack Technologies
